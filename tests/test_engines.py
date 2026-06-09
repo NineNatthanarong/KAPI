@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from arag import ARAG, MetaFilter
+from kapi import Kapi, MetaFilter
 
 ENGINES = ["tantivy", "sqlite", "bm25s"]
 
@@ -14,7 +14,7 @@ def _top_doc_ids(hits):
 @pytest.fixture(params=ENGINES)
 def rag(request, corpus_docs):
     try:
-        r = ARAG(engine=request.param)  # no LLM -> pure lexical
+        r = Kapi(engine=request.param)  # no LLM -> pure lexical
     except RuntimeError as exc:  # optional engine missing
         pytest.skip(str(exc))
     r.add(corpus_docs)
@@ -50,7 +50,7 @@ def test_metadata_filter(rag):
 
 
 def test_typo_tolerance_default_engine(corpus_docs):
-    rag = ARAG(engine="tantivy")
+    rag = Kapi(engine="tantivy")
     rag.add(corpus_docs)
     top = _top_doc_ids(rag.search("recurssion", k=3))
     assert "recursion" in top
@@ -59,7 +59,7 @@ def test_typo_tolerance_default_engine(corpus_docs):
 
 def test_ngram_regression_when_disabled(corpus_docs):
     # disabling the ngram signal should drop the typo match
-    rag = ARAG(engine="tantivy", enable_ngram=False)
+    rag = Kapi(engine="tantivy", enable_ngram=False)
     rag.add(corpus_docs)
     top = _top_doc_ids(rag.search("recurssion", k=3))
     assert "recursion" not in top

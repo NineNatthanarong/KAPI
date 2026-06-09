@@ -1,8 +1,8 @@
 """BEIR runner — prove the no-embedding pipeline is "good enough" vs published BM25.
 
-Indexes a BEIR corpus, runs the queries through an ``ARAG`` instance, and reports
+Indexes a BEIR corpus, runs the queries through an ``Kapi`` instance, and reports
 nDCG@10 / Recall@100 / MRR next to the published BM25 numbers from the BEIR paper
-(Thakur et al., 2021). Requires the eval extra:  pip install arag[eval]
+(Thakur et al., 2021). Requires the eval extra:  pip install kapi[eval]
 
 BEIR judges at *document* granularity, so per-doc chunk scores are max-pooled back to the
 source doc id before scoring.
@@ -54,7 +54,7 @@ def load_beir(dataset: str = "scifact", split: str = "test", data_dir: str = "da
         from beir import util  # type: ignore
         from beir.datasets.data_loader import GenericDataLoader  # type: ignore
     except Exception as exc:  # pragma: no cover - optional dep
-        raise RuntimeError("BEIR eval requires: pip install arag[eval]") from exc
+        raise RuntimeError("BEIR eval requires: pip install kapi[eval]") from exc
 
     url = (f"https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/"
            f"{dataset}.zip")
@@ -85,7 +85,7 @@ def run_beir(
     metrics=("ndcg@10", "recall@100", "mrr"),
     data_dir: str = "datasets",
 ) -> BeirReport:
-    """Build an ARAG via ``rag_factory()``, index the BEIR corpus, evaluate the queries."""
+    """Build an Kapi via ``rag_factory()``, index the BEIR corpus, evaluate the queries."""
     corpus, queries, qrels = load_beir(dataset, split, data_dir)
     rag = rag_factory()
     rag.add(list(corpus_to_documents(corpus)))

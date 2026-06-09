@@ -1,4 +1,4 @@
-"""The public ``ARAG`` facade — orchestrates lexical retrieval + optional LLM augmentation.
+"""The public ``Kapi`` facade — orchestrates lexical retrieval + optional LLM augmentation.
 
 Design rules:
   * Pure-lexical retrieval ALWAYS works; LLM features are pure add-ons. When ``llm`` is
@@ -25,10 +25,10 @@ from .retrieve import multisignal
 from .store.metadata import DocFingerprint, MetadataStore
 
 Source = Union[str, Document, Iterable[Union[str, Document]]]
-_MANIFEST = "arag.json"
+_MANIFEST = "kapi.json"
 
 
-class ARAG:
+class Kapi:
     def __init__(
         self,
         llm=None,
@@ -65,7 +65,7 @@ class ARAG:
 
     # ------------------------------------------------------------------ open
     @classmethod
-    def open(cls, path: str, llm=None, *, preset: str = "quality", **overrides) -> "ARAG":
+    def open(cls, path: str, llm=None, *, preset: str = "quality", **overrides) -> "Kapi":
         return cls(llm=llm, preset=preset, path=path, **overrides)
 
     # ------------------------------------------------------------------ ingest
@@ -264,7 +264,7 @@ class ARAG:
         if os.path.exists(mpath):
             return
         data = {
-            "arag_version": "0.1.0",
+            "kapi_version": "0.1.0",
             "engine": self.config.engine,
             "language": self.config.language,
             "enable_ngram": self.config.enable_ngram,
@@ -286,7 +286,7 @@ class ARAG:
         finally:
             self.store.close()
 
-    def __enter__(self) -> "ARAG":
+    def __enter__(self) -> "Kapi":
         return self
 
     def __exit__(self, *exc) -> None:

@@ -1,4 +1,4 @@
-"""Runnable ARAG demo — no external LLM server required.
+"""Runnable Kapi demo — no external LLM server required.
 
 Run:  python examples/demo.py
 
@@ -11,9 +11,9 @@ Shows three things end to end:
 
 from __future__ import annotations
 
-from arag import ARAG
-from arag._types import Document
-from arag.llm import CallableLLM
+from kapi import Kapi
+from kapi._types import Document
+from kapi.llm import CallableLLM
 
 DOCS = [
     ("python", "Python", "Python is a high-level programming language with readable syntax."),
@@ -49,7 +49,7 @@ def main():
     print("=" * 70)
     print("1) PURE LEXICAL (no LLM)")
     print("=" * 70)
-    rag = ARAG()
+    rag = Kapi()
     rag.add(corpus())
     for q in ["readable programming language", "function that calls itself", "recurssion"]:
         hit = rag.search(q, k=1)[0]
@@ -62,7 +62,7 @@ def main():
     print("\n" + "=" * 70)
     print("2) QUALITY PIPELINE (contextual indexing + expansion + answer)")
     print("=" * 70)
-    rag = ARAG(llm=offline_llm())  # preset='quality'
+    rag = Kapi(llm=offline_llm())  # preset='quality'
     rep = rag.add(corpus())
     print(f"  indexed {rep.num_chunks} chunks, contextualized {rep.contextualized}")
     res = rag.query("money back", k=2)
@@ -75,9 +75,9 @@ def main():
     print("\n" + "=" * 70)
     print("3) USE A REAL LOCAL LLM (one line):")
     print("=" * 70)
-    print("""  from arag.llm import OpenAICompatLLM
+    print("""  from kapi.llm import OpenAICompatLLM
   llm = OpenAICompatLLM(base_url="http://localhost:11434/v1/", api_key="ollama", model="llama3.2")
-  rag = ARAG(llm=llm, path="./index")""")
+  rag = Kapi(llm=llm, path="./index")""")
 
 
 if __name__ == "__main__":

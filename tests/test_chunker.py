@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from arag._types import Document, attach_context
-from arag.ingest.chunker import Chunker, ChunkConfig
+from kapi._types import Document, attach_context
+from kapi.ingest.chunker import Chunker, ChunkConfig
 
 
 def _doc(text, ctype="markdown"):

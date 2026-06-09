@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-from arag import ARAG, Config
-from arag._types import Chunk, Hit
-from arag.augment.expand import QueryExpander
-from arag.generate.answer import Generator
-from arag.llm import CallableLLM
+from kapi import Kapi, Config
+from kapi._types import Chunk, Hit
+from kapi.augment.expand import QueryExpander
+from kapi.generate.answer import Generator
+from kapi.llm import CallableLLM
 
 
 # ---------------------------------------------------------------- no-LLM degradation
 def test_no_llm_pure_lexical(corpus_docs):
-    rag = ARAG()  # no llm
+    rag = Kapi()  # no llm
     assert not rag.config.contextual_enabled
     assert not rag.config.expand_enabled
     assert not rag.config.generate_enabled
@@ -22,7 +22,7 @@ def test_no_llm_pure_lexical(corpus_docs):
 
 # ---------------------------------------------------------------- contextual indexing
 def test_contextual_indexing_and_cache(corpus_docs, fake_llm):
-    rag = ARAG(llm=fake_llm)  # quality preset
+    rag = Kapi(llm=fake_llm)  # quality preset
     rep = rag.add(corpus_docs)
     assert rep.contextualized == rep.num_chunks
     assert fake_llm.calls["contextual"] == rep.num_chunks
@@ -35,7 +35,7 @@ def test_contextual_indexing_and_cache(corpus_docs, fake_llm):
 
 
 def test_fast_preset_disables_enhancers(fake_llm):
-    rag = ARAG(llm=fake_llm, preset="fast")
+    rag = Kapi(llm=fake_llm, preset="fast")
     assert not rag.config.contextual_enabled
     assert not rag.config.expand_enabled
     assert rag.config.generate_enabled  # generation still on
@@ -83,7 +83,7 @@ def test_generation_citation_mapping(fake_llm):
 
 def test_query_uses_expansion_to_fix_vocab_mismatch(fake_llm):
     # 'money back' should reach the refund doc via expansion (+contextual)
-    rag = ARAG(llm=fake_llm)
+    rag = Kapi(llm=fake_llm)
     rag.add([d for d in _refund_corpus()])
     res = rag.query("money back", k=3)
     assert any(h.chunk.doc_id == "refund" for h in res.hits)
@@ -92,7 +92,7 @@ def test_query_uses_expansion_to_fix_vocab_mismatch(fake_llm):
 
 
 def _refund_corpus():
-    from arag._types import Document
+    from kapi._types import Document
 
     data = [
         ("refund", "The store reimburses purchases to the original card after approval."),

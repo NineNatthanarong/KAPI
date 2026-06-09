@@ -1,11 +1,11 @@
-"""ARAG — fast, local, zero-setup RAG with no embedding model.
+"""Kapi — fast, local, zero-setup RAG with no embedding model.
 
 Public surface::
 
-    from arag import ARAG
-    from arag.llm import OpenAICompatLLM, CallableLLM
+    from kapi import Kapi
+    from kapi.llm import OpenAICompatLLM, CallableLLM
 
-The :class:`ARAG` facade orchestrates lexical retrieval (BM25 over words + char
+The :class:`Kapi` facade orchestrates lexical retrieval (BM25 over words + char
 n-grams + title, fused) and optional LLM augmentation (contextual indexing + query
 expansion + grounded generation). Everything works with no LLM (pure lexical) and
 with no setup beyond ``pip install``.
@@ -29,7 +29,7 @@ from .results import AddReport, Answer, Citation, CostEstimate, CostGuardError, 
 __version__ = "0.1.0"
 
 __all__ = [
-    "ARAG",
+    "Kapi",
     "Config",
     "Document",
     "Chunk",
@@ -50,10 +50,10 @@ __all__ = [
 
 
 def __getattr__(name: str):
-    # Lazy import of the heavy facade so `import arag` stays cheap and so the
+    # Lazy import of the heavy facade so `import kapi` stays cheap and so the
     # package imports cleanly even before optional engine deps are touched.
-    if name == "ARAG":
-        from .app import ARAG
+    if name == "Kapi":
+        from .app import Kapi
 
-        return ARAG
-    raise AttributeError(f"module 'arag' has no attribute {name!r}")
+        return Kapi
+    raise AttributeError(f"module 'kapi' has no attribute {name!r}")

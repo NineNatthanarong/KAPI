@@ -5,7 +5,7 @@ incremental append — we keep all chunk text in memory and rebuild the index on
 ``commit()`` (fast). Best for fixed corpora where raw query speed matters most; persists
 by saving the text map and re-indexing on open. Word signal only (the simple fast path).
 
-Requires the optional extra:  pip install arag[bm25s]
+Requires the optional extra:  pip install kapi[bm25s]
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ def _require_bm25s():
         return bm25s
     except Exception as exc:  # pragma: no cover - optional dep
         raise RuntimeError(
-            "The bm25s engine requires the 'bm25s' extra: pip install arag[bm25s]"
+            "The bm25s engine requires the 'bm25s' extra: pip install kapi[bm25s]"
         ) from exc
 
 

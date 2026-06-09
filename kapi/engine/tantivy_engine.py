@@ -77,12 +77,12 @@ class TantivyEngine:
         sb.add_text_field("chunk_id", stored=True, tokenizer_name="raw")
         sb.add_text_field("doc_id", stored=True, tokenizer_name="raw")
         sb.add_text_field("section", stored=True, tokenizer_name="raw")
-        sb.add_text_field("body", stored=False, tokenizer_name="arag_words",
+        sb.add_text_field("body", stored=False, tokenizer_name="kapi_words",
                           index_option="position")
         if config.enable_ngram:
-            sb.add_text_field("ngram", stored=False, tokenizer_name="arag_ngram",
+            sb.add_text_field("ngram", stored=False, tokenizer_name="kapi_ngram",
                               index_option="position")
-        sb.add_text_field("title", stored=True, tokenizer_name="arag_words",
+        sb.add_text_field("title", stored=True, tokenizer_name="kapi_words",
                           index_option="position")
         return sb.build()
 
@@ -97,7 +97,7 @@ class TantivyEngine:
         if config.enable_stemming:
             wb = wb.filter(Filter.stemmer(config.language))
         word_analyzer = wb.build()
-        index.register_tokenizer("arag_words", word_analyzer)
+        index.register_tokenizer("kapi_words", word_analyzer)
 
         ngram_analyzer = None
         if config.enable_ngram:
@@ -106,7 +106,7 @@ class TantivyEngine:
             if config.ascii_fold:
                 nb = nb.filter(Filter.ascii_fold())
             ngram_analyzer = nb.build()
-            index.register_tokenizer("arag_ngram", ngram_analyzer)
+            index.register_tokenizer("kapi_ngram", ngram_analyzer)
         return word_analyzer, ngram_analyzer
 
     # ------------------------------------------------------------------ writer

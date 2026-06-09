@@ -3,13 +3,13 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "arag"
+name = "kapi"
 version = "0.1.0"
 description = "Fast, local, zero-setup RAG with no embedding model — BM25 + the LLM you plug in."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-authors = [{ name = "ARAG" }]
+authors = [{ name = "Kapi" }]
 keywords = ["rag", "bm25", "retrieval", "search", "tantivy", "llm", "local"]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -39,7 +39,7 @@ eval = [
     "datasets>=2.0",
 ]
 dev = [
-    "arag[openai,bm25s,eval]",
+    "kapi[openai,bm25s,eval]",
     "pytest>=7",
     "pytest-cov",
     "ruff",
@@ -47,10 +47,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/NineNatthanarong/ARAG"
+Homepage = "https://github.com/NineNatthanarong/Kapi"
 
 [tool.hatch.build.targets.wheel]
-packages = ["arag"]
+packages = ["kapi"]
 
 [tool.pytest.ini_options]
 markers = [

@@ -1,4 +1,4 @@
-"""Shared data contracts for ARAG.
+"""Shared data contracts for Kapi.
 
 These small, dependency-free dataclasses are the backbone every layer agrees on:
 ingest produces ``Document`` -> ``Chunk``; engines index ``Chunk.indexed_text`` and

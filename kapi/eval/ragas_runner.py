@@ -1,8 +1,8 @@
 """Optional end-to-end answer evaluation via RAGAS (faithfulness, answer relevancy, ...).
 
-Runs questions through an ``ARAG`` instance and scores the generated answers with RAGAS,
+Runs questions through an ``Kapi`` instance and scores the generated answers with RAGAS,
 using the LLM you plugged in (wrapped for RAGAS) unless you pass an explicit evaluator
-LLM. Requires:  pip install arag[eval]   (or arag[ragas])
+LLM. Requires:  pip install kapi[eval]   (or kapi[ragas])
 """
 
 from __future__ import annotations
@@ -10,8 +10,8 @@ from __future__ import annotations
 from typing import List, Optional
 
 
-def _wrap_arag_llm_for_ragas(arag_llm):
-    """Best-effort adapter: wrap an ARAG LLM as a LangChain LLM for RAGAS.
+def _wrap_kapi_llm_for_ragas(kapi_llm):
+    """Best-effort adapter: wrap an Kapi LLM as a LangChain LLM for RAGAS.
 
     RAGAS is version-sensitive; if this fails, pass ``ragas_llm`` explicitly.
     """
@@ -21,10 +21,10 @@ def _wrap_arag_llm_for_ragas(arag_llm):
     class _LC(LCBaseLLM):
         @property
         def _llm_type(self) -> str:
-            return "arag"
+            return "kapi"
 
         def _call(self, prompt, stop=None, run_manager=None, **kwargs):
-            return arag_llm.complete(prompt, stop=stop)
+            return kapi_llm.complete(prompt, stop=stop)
 
     return LangchainLLMWrapper(_LC())
 
@@ -42,7 +42,7 @@ def evaluate_answers(
         from ragas import EvaluationDataset, evaluate  # type: ignore
         from ragas.metrics import Faithfulness, ResponseRelevancy  # type: ignore
     except Exception as exc:  # pragma: no cover - optional dep
-        raise RuntimeError("RAGAS eval requires: pip install arag[eval]") from exc
+        raise RuntimeError("RAGAS eval requires: pip install kapi[eval]") from exc
 
     samples = []
     for i, q in enumerate(questions):
@@ -57,6 +57,6 @@ def evaluate_answers(
         samples.append(sample)
 
     dataset = EvaluationDataset.from_list(samples)
-    llm = ragas_llm or _wrap_arag_llm_for_ragas(rag.llm)
+    llm = ragas_llm or _wrap_kapi_llm_for_ragas(rag.llm)
     metrics = metrics or [Faithfulness(), ResponseRelevancy()]
     return evaluate(dataset=dataset, metrics=metrics, llm=llm)

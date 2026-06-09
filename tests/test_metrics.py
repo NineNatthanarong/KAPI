@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 
-from arag.eval.ir_metrics import evaluate_run, ndcg_at_k, recall_at_k, reciprocal_rank
+from kapi.eval.ir_metrics import evaluate_run, ndcg_at_k, recall_at_k, reciprocal_rank
 
 
 def test_perfect_ranking():

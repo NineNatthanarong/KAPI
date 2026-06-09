@@ -4,8 +4,8 @@ import builtins
 
 import pytest
 
-from arag.tokenize.ngram import CharNgramTokenizer
-from arag.tokenize.text import WordTokenizer
+from kapi.tokenize.ngram import CharNgramTokenizer
+from kapi.tokenize.text import WordTokenizer
 
 
 def test_word_tokenizer_basic():
