@@ -1,0 +1,63 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "arag"
+version = "0.1.0"
+description = "Fast, local, zero-setup RAG with no embedding model — BM25 + the LLM you plug in."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "ARAG" }]
+keywords = ["rag", "bm25", "retrieval", "search", "tantivy", "llm", "local"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Text Processing :: Indexing",
+    "Intended Audience :: Developers",
+]
+# Core stays featherweight: a fast persistent engine, a pure-Python stemmer, and an
+# HTTP client so the local-LLM path works on the core install alone. No models, ever.
+dependencies = [
+    "tantivy>=0.24",
+    "snowballstemmer>=2.2",
+    "httpx>=0.24",
+]
+
+[project.optional-dependencies]
+openai = ["openai>=1.0", "tiktoken>=0.5"]                 # SDK retries + exact token counts
+bm25s = ["bm25s>=0.2", "numpy>=1.23", "scipy>=1.10"]      # optional in-memory fast-batch engine
+pdf = ["pypdf>=4.0"]
+html = ["selectolax>=0.3"]
+tiktoken = ["tiktoken>=0.5"]
+eval = [
+    "ranx>=0.3",
+    "pytrec_eval-terrier>=0.5",
+    "beir>=2.0",
+    "ragas>=0.2",
+    "datasets>=2.0",
+]
+dev = [
+    "arag[openai,bm25s,eval]",
+    "pytest>=7",
+    "pytest-cov",
+    "ruff",
+    "mypy",
+]
+
+[project.urls]
+Homepage = "https://github.com/NineNatthanarong/ARAG"
+
+[tool.hatch.build.targets.wheel]
+packages = ["arag"]
+
+[tool.pytest.ini_options]
+markers = [
+    "eval: end-to-end evaluation tests (may require network / extra deps)",
+    "live_llm: tests that require a running local LLM server",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
