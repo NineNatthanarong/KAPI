@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/banner.png" alt="NRAG: Compiled Retrieval, embedding-free RAG" width="100%">
+<img src="https://github.com/NineNatthanarong/NRAG/blob/main/assets/banner.png?raw=True" alt="NRAG: Compiled Retrieval, embedding-free RAG" width="100%">
 
 <br/>
 
@@ -24,7 +24,7 @@
 Can a retriever with **no embedding model** compete with dense embeddings? On **BEIR scifact**, yes.
 
 <div align="center">
-<img src="assets/perf-scifact.png" alt="BEIR scifact nDCG@10, Nrag vs dense embedders" width="860">
+<img src="https://github.com/NineNatthanarong/NRAG/blob/main/assets/perf-scifact.png?raw=True" alt="BEIR scifact nDCG@10, Nrag vs dense embedders" width="860">
 </div>
 
 **The honest headline.** In the cost-fair tier (retrieval only, no per-query model), *Nrag doc2query×2* (no embeddings, no GPU, no vector DB) hits **nDCG@10 0.7291 / MRR 0.7042**. That **statistically ties `qwen3-embedding-4b`** (0.7308) and **beats it on MRR**, while clearly beating `text-embedding-3-small` and `bge-m3`, all at **`$0` per query**. Only the 8B embedder is decisively ahead. Full 30-row, cost-tiered table with ablations: [`benchmarks/scifact_results.md`](benchmarks/scifact_results.md).
@@ -259,7 +259,7 @@ python -m pytest                                                        # 87 pas
 Evaluation isn't only quality; it's the bill. Nrag pays the smart compute **once, at compile time**; a dense + vector-DB stack pays it on **every query, forever**, plus RAM to hold vectors resident.
 
 <div align="center">
-<img src="assets/tco.png" alt="NRAG vs dense+vectorDB cumulative cost over 12 months" width="860">
+<img src="https://github.com/NineNatthanarong/NRAG/blob/main/assets/tco.png?raw=True" alt="NRAG vs dense+vectorDB cumulative cost over 12 months" width="860">
 </div>
 
 ```bash
