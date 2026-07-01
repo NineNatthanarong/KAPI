@@ -1,4 +1,4 @@
-<svg viewBox="0 0 1200 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="KAPI vs dense+vectorDB cumulative cost over 12 months">
+<svg viewBox="0 0 1200 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="KAPI vs dense+vectorDB cumulative cost over 12 months">
   <defs>
     <style>
       text{font-family:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif}
@@ -6,55 +6,58 @@
     </style>
   </defs>
 
-  <rect x="0" y="0" width="1200" height="520" rx="16" fill="#ffffff" stroke="#e2e8f0"/>
+  <rect x="0" y="0" width="1200" height="540" rx="16" fill="#ffffff" stroke="#e2e8f0"/>
 
-  <text x="32" y="42" font-size="23" font-weight="800" fill="#0f172a">12-month cost of ownership</text>
-  <text x="32" y="66" font-size="15" fill="#475569">1M docs · 1M queries/month · via <tspan font-family="monospace" fill="#0f172a">kapi tco</tspan>. Kapi pays once at compile; dense pays every query, forever.</text>
+  <text x="32" y="46" font-size="23" font-weight="800" fill="#0f172a">12-month cost of ownership</text>
+  <text x="32" y="72" font-size="15" fill="#475569">Cumulative $ · 1M docs · 1M queries/month · via <tspan font-family="monospace" fill="#0f172a">kapi tco</tspan>. Kapi pays once at compile; dense pays every query, forever.</text>
 
-  <!-- y grid + labels -->
+  <!-- y grid + labels ($0..$400 over plot y=450..115) -->
   <g stroke="#eef2f7" stroke-width="1">
-    <line x1="90" y1="430" x2="1110" y2="430"/>
-    <line x1="90" y1="340" x2="1110" y2="340"/>
-    <line x1="90" y1="250" x2="1110" y2="250"/>
-    <line x1="90" y1="160" x2="1110" y2="160"/>
-    <line x1="90" y1="70"  x2="1110" y2="70"/>
+    <line x1="100" y1="450" x2="1110" y2="450"/>
+    <line x1="100" y1="366.25" x2="1110" y2="366.25"/>
+    <line x1="100" y1="282.5" x2="1110" y2="282.5"/>
+    <line x1="100" y1="198.75" x2="1110" y2="198.75"/>
+    <line x1="100" y1="115" x2="1110" y2="115"/>
   </g>
   <g class="ax" text-anchor="end">
-    <text x="78" y="434">$0</text>
-    <text x="78" y="344">$100</text>
-    <text x="78" y="254">$200</text>
-    <text x="78" y="164">$300</text>
-    <text x="78" y="74">$400</text>
+    <text x="86" y="454">$0</text>
+    <text x="86" y="370">$100</text>
+    <text x="86" y="286">$200</text>
+    <text x="86" y="203">$300</text>
+    <text x="86" y="119">$400</text>
   </g>
   <g class="ax" text-anchor="middle">
-    <text x="90" y="452">0</text>
-    <text x="345" y="452">3</text>
-    <text x="600" y="452">6</text>
-    <text x="855" y="452">9</text>
-    <text x="1110" y="452">12 months</text>
+    <text x="100" y="470">0</text>
+    <text x="352" y="470">3</text>
+    <text x="605" y="470">6</text>
+    <text x="857" y="470">9</text>
+    <text x="1110" y="470">12</text>
+    <text x="605" y="492">months</text>
   </g>
 
-  <!-- savings region (after break-even) -->
-  <polygon points="475,295 1110,87 1110,295" fill="#86efac" opacity="0.35"/>
+  <!-- savings region: between the two lines, after break-even -->
+  <polygon points="481,324 1110,131 1110,324" fill="#86efac" opacity="0.32"/>
 
-  <!-- dense: recurring bill, rising -->
-  <line x1="90" y1="421" x2="1110" y2="87" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round"/>
-  <circle cx="1110" cy="87" r="5" fill="#ef4444"/>
-  <text x="612" y="150" font-size="15" font-weight="700" fill="#dc2626">dense + vector DB</text>
-  <text x="612" y="170" font-size="13" fill="#ef4444">recurring embed + resident RAM → $380 / 12 mo</text>
+  <!-- dense: recurring bill, rising from $10 (index) to $381 -->
+  <line x1="100" y1="442" x2="1110" y2="131" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="1110" cy="131" r="5" fill="#ef4444"/>
+  <text x="1100" y="122" font-size="14" font-weight="800" fill="#dc2626" text-anchor="end">$381</text>
+  <text x="678" y="158" font-size="15" font-weight="700" fill="#dc2626">dense + vector DB</text>
+  <text x="678" y="178" font-size="13" fill="#ef4444">embed every query + resident RAM</text>
 
-  <!-- kapi: flat after one-time compile -->
-  <line x1="90" y1="295" x2="1110" y2="295" stroke="#7c3aed" stroke-width="3.5" stroke-linecap="round"/>
-  <circle cx="90" cy="295" r="5" fill="#7c3aed"/>
-  <circle cx="1110" cy="295" r="5" fill="#7c3aed"/>
-  <text x="104" y="286" font-size="15" font-weight="700" fill="#6d28d9">Kapi — $150 once, then $0 / query</text>
+  <!-- kapi: one-time compile, then flat ($0/query) -->
+  <line x1="100" y1="324" x2="1110" y2="324" stroke="#7c3aed" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="100" cy="324" r="5" fill="#7c3aed"/>
+  <circle cx="1110" cy="324" r="5" fill="#7c3aed"/>
+  <text x="112" y="314" font-size="15" font-weight="700" fill="#6d28d9">Kapi — $150 once, then $0 / query</text>
+  <text x="1100" y="316" font-size="14" font-weight="800" fill="#6d28d9" text-anchor="end">$150</text>
 
   <!-- break-even marker -->
-  <line x1="475" y1="295" x2="475" y2="430" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 4"/>
-  <circle cx="475" cy="295" r="6" fill="#0f172a"/>
-  <text x="486" y="315" font-size="13" font-weight="600" fill="#334155">break-even ≈ 4.5 months</text>
+  <line x1="481" y1="324" x2="481" y2="450" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <circle cx="481" cy="324" r="6" fill="#0f172a"/>
+  <text x="492" y="344" font-size="13" font-weight="600" fill="#334155">break-even ≈ 4.5 months</text>
 
-  <!-- savings callout -->
-  <text x="815" y="250" font-size="16" font-weight="800" fill="#15803d">saves ≈ $231 (60%)</text>
-  <text x="815" y="270" font-size="13" fill="#16a34a">and the gap widens with traffic</text>
+  <!-- savings callout, inside the green band -->
+  <text x="812" y="292" font-size="16" font-weight="800" fill="#15803d">Kapi saves ≈ $231 (60%)</text>
+  <text x="812" y="312" font-size="13" fill="#16a34a">and the gap widens with traffic</text>
 </svg>
