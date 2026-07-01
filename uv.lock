@@ -1812,89 +1812,6 @@ wheels = [
 ]
 
 [[package]]
-name = "kapi"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "httpx" },
-    { name = "snowballstemmer" },
-    { name = "tantivy" },
-]
-
-[package.optional-dependencies]
-bm25s = [
-    { name = "bm25s" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-]
-dev = [
-    { name = "beir" },
-    { name = "bm25s" },
-    { name = "datasets" },
-    { name = "mypy" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "openai" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytrec-eval-terrier" },
-    { name = "ragas" },
-    { name = "ranx" },
-    { name = "ruff" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "tiktoken" },
-]
-eval = [
-    { name = "beir" },
-    { name = "datasets" },
-    { name = "pytrec-eval-terrier" },
-    { name = "ragas" },
-    { name = "ranx" },
-]
-html = [
-    { name = "selectolax" },
-]
-openai = [
-    { name = "openai" },
-    { name = "tiktoken" },
-]
-pdf = [
-    { name = "pypdf" },
-]
-tiktoken = [
-    { name = "tiktoken" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "beir", marker = "extra == 'eval'", specifier = ">=2.0" },
-    { name = "bm25s", marker = "extra == 'bm25s'", specifier = ">=0.2" },
-    { name = "datasets", marker = "extra == 'eval'", specifier = ">=2.0" },
-    { name = "httpx", specifier = ">=0.24" },
-    { name = "kapi", extras = ["openai", "bm25s", "eval"], marker = "extra == 'dev'" },
-    { name = "mypy", marker = "extra == 'dev'" },
-    { name = "numpy", marker = "extra == 'bm25s'", specifier = ">=1.23" },
-    { name = "openai", marker = "extra == 'openai'", specifier = ">=1.0" },
-    { name = "pypdf", marker = "extra == 'pdf'", specifier = ">=4.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7" },
-    { name = "pytest-cov", marker = "extra == 'dev'" },
-    { name = "pytrec-eval-terrier", marker = "extra == 'eval'", specifier = ">=0.5" },
-    { name = "ragas", marker = "extra == 'eval'", specifier = ">=0.2" },
-    { name = "ranx", marker = "extra == 'eval'", specifier = ">=0.3" },
-    { name = "ruff", marker = "extra == 'dev'" },
-    { name = "scipy", marker = "extra == 'bm25s'", specifier = ">=1.10" },
-    { name = "selectolax", marker = "extra == 'html'", specifier = ">=0.3" },
-    { name = "snowballstemmer", specifier = ">=2.2" },
-    { name = "tantivy", specifier = ">=0.24" },
-    { name = "tiktoken", marker = "extra == 'openai'", specifier = ">=0.5" },
-    { name = "tiktoken", marker = "extra == 'tiktoken'", specifier = ">=0.5" },
-]
-provides-extras = ["openai", "bm25s", "pdf", "html", "tiktoken", "eval", "dev"]
-
-[[package]]
 name = "kiwisolver"
 version = "1.5.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2974,6 +2891,89 @@ sdist = { url = "https://files.pythonhosted.org/packages/6a/51/63fe664f3908c97be
 wheels = [
     { url = "https://files.pythonhosted.org/packages/9e/c9/b2622292ea83fbb4ec318f5b9ab867d0a28ab43c5717bb85b0a5f6b3b0a4/networkx-3.6.1-py3-none-any.whl", hash = "sha256:d47fbf302e7d9cbbb9e2555a0d267983d2aa476bac30e90dfbe5669bd57f3762", size = 2068504, upload-time = "2025-12-08T17:02:38.159Z" },
 ]
+
+[[package]]
+name = "nrag"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "httpx" },
+    { name = "snowballstemmer" },
+    { name = "tantivy" },
+]
+
+[package.optional-dependencies]
+bm25s = [
+    { name = "bm25s" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+]
+dev = [
+    { name = "beir" },
+    { name = "bm25s" },
+    { name = "datasets" },
+    { name = "mypy" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "openai" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytrec-eval-terrier" },
+    { name = "ragas" },
+    { name = "ranx" },
+    { name = "ruff" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "tiktoken" },
+]
+eval = [
+    { name = "beir" },
+    { name = "datasets" },
+    { name = "pytrec-eval-terrier" },
+    { name = "ragas" },
+    { name = "ranx" },
+]
+html = [
+    { name = "selectolax" },
+]
+openai = [
+    { name = "openai" },
+    { name = "tiktoken" },
+]
+pdf = [
+    { name = "pypdf" },
+]
+tiktoken = [
+    { name = "tiktoken" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "beir", marker = "extra == 'eval'", specifier = ">=2.0" },
+    { name = "bm25s", marker = "extra == 'bm25s'", specifier = ">=0.2" },
+    { name = "datasets", marker = "extra == 'eval'", specifier = ">=2.0" },
+    { name = "httpx", specifier = ">=0.24" },
+    { name = "mypy", marker = "extra == 'dev'" },
+    { name = "nrag", extras = ["openai", "bm25s", "eval"], marker = "extra == 'dev'" },
+    { name = "numpy", marker = "extra == 'bm25s'", specifier = ">=1.23" },
+    { name = "openai", marker = "extra == 'openai'", specifier = ">=1.0" },
+    { name = "pypdf", marker = "extra == 'pdf'", specifier = ">=4.0" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7" },
+    { name = "pytest-cov", marker = "extra == 'dev'" },
+    { name = "pytrec-eval-terrier", marker = "extra == 'eval'", specifier = ">=0.5" },
+    { name = "ragas", marker = "extra == 'eval'", specifier = ">=0.2" },
+    { name = "ranx", marker = "extra == 'eval'", specifier = ">=0.3" },
+    { name = "ruff", marker = "extra == 'dev'" },
+    { name = "scipy", marker = "extra == 'bm25s'", specifier = ">=1.10" },
+    { name = "selectolax", marker = "extra == 'html'", specifier = ">=0.3" },
+    { name = "snowballstemmer", specifier = ">=2.2" },
+    { name = "tantivy", specifier = ">=0.24" },
+    { name = "tiktoken", marker = "extra == 'openai'", specifier = ">=0.5" },
+    { name = "tiktoken", marker = "extra == 'tiktoken'", specifier = ">=0.5" },
+]
+provides-extras = ["openai", "bm25s", "pdf", "html", "tiktoken", "eval", "dev"]
 
 [[package]]
 name = "numba"

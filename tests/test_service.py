@@ -11,9 +11,9 @@ import urllib.request
 
 import pytest
 
-from kapi import Kapi
-from kapi.portable import import_index
-from kapi.service import CompilationService, build_server
+from nrag import Nrag
+from nrag.portable import import_index
+from nrag.service import CompilationService, build_server
 
 
 class _FakeLLM:
@@ -74,12 +74,12 @@ def test_compile_download_and_serve_offline(live_service, tmp_path):
 
     status, blob = _get(base + res["bundle_url"])           # download the serving bundle
     assert status == 200 and blob[:2] == b"\x1f\x8b"        # gzip magic
-    bundle = tmp_path / "dl.kapi.tgz"
+    bundle = tmp_path / "dl.nrag.tgz"
     bundle.write_bytes(blob)
 
     dest = str(tmp_path / "local")                          # serve it with NO LLM — the wedge
     import_index(str(bundle), dest)
-    served = Kapi.open(dest)
+    served = Nrag.open(dest)
     try:
         hits = served.search("cheapest route between nodes", k=2)
         assert hits and "Dijkstra" in hits[0].chunk.raw_text

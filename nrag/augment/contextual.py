@@ -65,7 +65,7 @@ class _BlurbCache:
         self.conn = None
         self._mem: dict[str, str] = {}
         if path:
-            cache_dir = os.path.join(path, ".kapi_cache")
+            cache_dir = os.path.join(path, ".nrag_cache")
             os.makedirs(cache_dir, exist_ok=True)
             self.conn = sqlite3.connect(os.path.join(cache_dir, "contextual.sqlite"),
                                         check_same_thread=False)

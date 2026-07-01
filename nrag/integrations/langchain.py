@@ -5,12 +5,12 @@ from __future__ import annotations
 from . import hits_to_records
 
 
-def to_langchain_retriever(kapi, *, k=None):
-    """Return a LangChain ``BaseRetriever`` backed by ``kapi.search``.
+def to_langchain_retriever(nrag, *, k=None):
+    """Return a LangChain ``BaseRetriever`` backed by ``nrag.search``.
 
     Usage::
 
-        from kapi.integrations import to_langchain_retriever
+        from nrag.integrations import to_langchain_retriever
         retriever = to_langchain_retriever(rag, k=5)
         chain = create_retrieval_chain(retriever, ...)   # standard LangChain from here
     """
@@ -23,8 +23,8 @@ def to_langchain_retriever(kapi, *, k=None):
             "to_langchain_retriever()."
         ) from exc
 
-    class KapiRetriever(BaseRetriever):
-        """LangChain retriever that delegates to a KAPI index (no embeddings, no vector DB)."""
+    class NragRetriever(BaseRetriever):
+        """LangChain retriever that delegates to a NRAG index (no embeddings, no vector DB)."""
 
         def _get_relevant_documents(self, query, *, run_manager=None):   # noqa: D401
             return [
@@ -33,7 +33,7 @@ def to_langchain_retriever(kapi, *, k=None):
                     metadata={**r["metadata"], "score": r["score"],
                               "source": r["source"], "chunk_id": r["chunk_id"]},
                 )
-                for r in hits_to_records(kapi.search(query, k=k))
+                for r in hits_to_records(nrag.search(query, k=k))
             ]
 
-    return KapiRetriever()
+    return NragRetriever()

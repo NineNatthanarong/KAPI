@@ -3,8 +3,8 @@ incremental delete, and JSON persistence."""
 
 from __future__ import annotations
 
-from kapi.retrieve.sparse import SparseConsensusIndex
-from kapi.tokenize.text import WordTokenizer
+from nrag.retrieve.sparse import SparseConsensusIndex
+from nrag.tokenize.text import WordTokenizer
 
 _TOK = WordTokenizer("english")
 

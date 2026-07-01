@@ -1,4 +1,4 @@
-# KAPI → Unbeatable: Strategy & Research Brief
+# NRAG → Unbeatable: Strategy & Research Brief
 
 *Author: research + synthesis pass, June 2026. Status: opinionated strategy, not gospel. Every external number is cited in the bibliography (§11). Items past ~mid-2025 are flagged `[fresh]` and should be re-verified before you quote them publicly.*
 
@@ -13,15 +13,15 @@ Everyone else puts the smart, expensive compute on the **hot path**:
 - **Dense embeddings** = a model runs on *every query* (and every document) → JIT.
 - **Query-time reasoning** (the thing that actually wins hard benchmarks today) = an LLM reasons on *every query* → an interpreter calling out to a 70B model per keystroke.
 
-KAPI's bet: move **all** of it to **index time**. An LLM runs **once per document, cached forever**, and "compiles" each document into an enriched, purely *lexical* representation — its full *queryable + inferential closure*. Query time then stays what BM25 already is: **~1 ms, no model, no GPU, no vector DB, fully explainable.**
+NRAG's bet: move **all** of it to **index time**. An LLM runs **once per document, cached forever**, and "compiles" each document into an enriched, purely *lexical* representation — its full *queryable + inferential closure*. Query time then stays what BM25 already is: **~1 ms, no model, no GPU, no vector DB, fully explainable.**
 
-This is the **AOT compiler vs. JIT interpreter** distinction, applied to retrieval. It is the single framing that makes KAPI (a) win the benchmarks that matter, (b) irresistible to developers, and (c) a defensible business. The rest of this document is the evidence and the build plan.
+This is the **AOT compiler vs. JIT interpreter** distinction, applied to retrieval. It is the single framing that makes NRAG (a) win the benchmarks that matter, (b) irresistible to developers, and (c) a defensible business. The rest of this document is the evidence and the build plan.
 
 Working name for the paradigm: **Compiled Retrieval**. Working name for the novel core algorithm: **Consensus Sparse Compilation (CSC)** — defined in §5.
 
 ---
 
-## 1. Honest assessment of KAPI today
+## 1. Honest assessment of NRAG today
 
 **What's genuinely good** (you undersell this):
 
@@ -32,7 +32,7 @@ Working name for the paradigm: **Compiled Retrieval**. Working name for the nove
 
 **The real problem (you diagnosed it correctly).** The *methodology* is an assembly of known parts:
 
-| KAPI feature | Prior art it is |
+| NRAG feature | Prior art it is |
 |---|---|
 | Contextual blurbs at index time | Anthropic Contextual Retrieval (Sep 2024) |
 | query2doc / CoT keyword expansion | Wang et al. EMNLP 2023; Jagerman et al. 2023 |
@@ -54,11 +54,11 @@ SPLADE-class models (SPLADE-v3, and the LLM-backbone Mistral-SPLADE / CSPLADE) b
 - **BM42 (Qdrant, Jul 2024)** tried exactly the seductive idea — read attention weights from an off-the-shelf transformer as term importance, no training. It was publicly **retracted within days**: Reimers (Cohere) and Bergum (Vespa) reran it and it lost to well-tuned BM25 across finance/biomedical/Wikipedia. Qdrant edited the post to "consider BM42 as an experimental approach." The community headline was literally *"Please don't trust us."*
 - **PROSPER (Oct 2025)** `[fresh]` got an LLM to emit SPLADE-style term:weights — but only by adding a **trained** "literal residual network," because they found LLMs *systematically hallucinate expansion terms and under-weight critical literal terms* (brands, IDs, model numbers). They also found **no scaling law** — a 7B LLM was no better than 1.5B at this.
 
-**The lesson that shapes KAPI's mechanism:** an LLM used naively as a term-weigher is a known dead end. The failure mode is precise and fixable: it drops literal terms and hallucinates. KAPI must (a) **anchor on a literal lexical floor by rule** and (b) get its weights from **agreement, not from a single raw generation**. See §5.
+**The lesson that shapes NRAG's mechanism:** an LLM used naively as a term-weigher is a known dead end. The failure mode is precise and fixable: it drops literal terms and hallucinates. NRAG must (a) **anchor on a literal lexical floor by rule** and (b) get its weights from **agreement, not from a single raw generation**. See §5.
 
-**The free lunch that *is* real:** the *query* side can be model-free at tiny cost. Nardini et al. (SIGIR 2025) show dropping the query encoder from SPLADE-v3 costs only −2.4 MRR@10 / −4.7 nDCG@10; Geng et al. (OpenSearch, Nov 2024) use **plain IDF as the query weight** and stay competitive. This validates KAPI's whole "keep the query side dumb and lexical" instinct — *the document side is where the value is, and the document side is index-time, which is where a cached LLM is cheap.*
+**The free lunch that *is* real:** the *query* side can be model-free at tiny cost. Nardini et al. (SIGIR 2025) show dropping the query encoder from SPLADE-v3 costs only −2.4 MRR@10 / −4.7 nDCG@10; Geng et al. (OpenSearch, Nov 2024) use **plain IDF as the query weight** and stay competitive. This validates NRAG's whole "keep the query side dumb and lexical" instinct — *the document side is where the value is, and the document side is index-time, which is where a cached LLM is cheap.*
 
-### 2.2 Index-time enrichment — the proven, KAPI-shaped levers
+### 2.2 Index-time enrichment — the proven, NRAG-shaped levers
 
 - **Anthropic Contextual Retrieval (Sep 2024):** prepend an LLM-written, *chunk-specific* context blurb before indexing. Contextual Embeddings −35% retrieval failures; **Contextual *BM25* + embeddings −49%**; +reranker −67%. Crucially for you: a large share of the lift is the *BM25* leg, and *generic* summaries gave "very limited" gains — it has to be chunk-specific. Cost ≈ $1.02 / 1M doc tokens with prompt caching. You already ship this.
 - **doc2query → docTTTTTquery:** generate the queries a doc answers, append before indexing. **MS MARCO MRR@10 0.184 → 0.277 (+50% relative)** from a pure index-time text augmentation. The model is a *generator*, not a trained retriever — so a general LLM can do it.
@@ -72,13 +72,13 @@ SPLADE-class models (SPLADE-v3, and the LLM-backbone Mistral-SPLADE / CSPLADE) b
 
 This is the most important cluster and the hero of the strategy.
 
-- **BRIGHT (ICLR 2025)** is the first benchmark built so that surface/semantic similarity is *insufficient* — relevance requires multi-step reasoning. The results are a gift to KAPI:
+- **BRIGHT (ICLR 2025)** is the first benchmark built so that surface/semantic similarity is *insufficient* — relevance requires multi-step reasoning. The results are a gift to NRAG:
   - The **#1 MTEB dense model (SFR-Embedding-Mistral, 59.0 on MTEB) scores 18.3 on BRIGHT.** High embedding-benchmark rank *does not transfer* to reasoning retrieval.
   - **BM25 with GPT-4 chain-of-thought-rewritten queries jumps from ~14.3 to ~27 nDCG@10 — beating the best off-the-shelf dense model.** The lever that wins is *reasoning*, and it helps the *lexical* model most.
 - **LATTICE (Oct 2025)** `[fresh]` is the existence proof: build a semantic tree from LLM document summaries **offline**, then let an LLM traverse it at query time. It hits **46.7 nDCG@10 on BRIGHT with a single off-the-shelf LLM and *no embedding model in the search loop*** — matching the best *fine-tuned* ensembles. Fused with cheap BM25+dense (LATTICE++) → 49.1, i.e. **lexical fusion adds on top** (validates RRF-of-cheap-signals).
-- The trained dense-reasoning frontier (ReasonIR 36.9 w/ rerank; DIVER 45.8; BGE-Reasoner 45.2) is strong but **expensive and not embedding-free** — they are off the cost-quality frontier KAPI competes on.
+- The trained dense-reasoning frontier (ReasonIR 36.9 w/ rerank; DIVER 45.8; BGE-Reasoner 45.2) is strong but **expensive and not embedding-free** — they are off the cost-quality frontier NRAG competes on.
 
-**Honest reading:** BM25+reasoning (~27) does *not* beat the best fine-tuned reasoning systems (~46). What it beats is **off-the-shelf / zero-shot dense embeddings (~18–24)**. The top of the leaderboard is *reasoning-driven*, and **LATTICE proves you can be there without an embedding model.** KAPI's move is to take LATTICE's "reasoning beats embeddings" insight but **push the reasoning to compile time** so query time stays 1 ms (LATTICE still pays an LLM traversal per query).
+**Honest reading:** BM25+reasoning (~27) does *not* beat the best fine-tuned reasoning systems (~46). What it beats is **off-the-shelf / zero-shot dense embeddings (~18–24)**. The top of the leaderboard is *reasoning-driven*, and **LATTICE proves you can be there without an embedding model.** NRAG's move is to take LATTICE's "reasoning beats embeddings" insight but **push the reasoning to compile time** so query time stays 1 ms (LATTICE still pays an LLM traversal per query).
 
 ### 2.4 Query-side expansion — and the precision trap you already found
 
@@ -88,13 +88,13 @@ HyDE, query2doc, LameR, GRF/MILL all bridge the query↔doc vocabulary gap with 
 
 - LLM/cross-encoder rerankers (RankZephyr, monoT5, Cohere Rerank 3.5, bge-reranker) lift first-stage BM25 by **+5 to +15 nDCG@10**, at one LLM call/query. Biggest single jump, not free — and (your finding, confirmed) it lifts dense *more* because dense has better candidate recall.
 - **Adaptive-RAG (NAACL 2024)** + the gating lineage (TARG, AcuRank, confidence-gated reranking `[fresh]`) show you can **route compute by query difficulty** and recover ~90–100% of always-rerank quality while skipping the expensive call on the (usually majority) easy queries.
-- **Distillation into the index (SPLADE/MarginMSE; LiT5):** cross-encoder ranking knowledge can be *compiled into doc-side term weights at index time*, then served at BM25 speed with no query-time model. This is the literature-backed heart of "front-load the smart compute offline." It is the *same idea* as Compiled Retrieval, and it works — the only twist KAPI adds is doing it **training-free, via an LLM, at index time.**
+- **Distillation into the index (SPLADE/MarginMSE; LiT5):** cross-encoder ranking knowledge can be *compiled into doc-side term weights at index time*, then served at BM25 speed with no query-time model. This is the literature-backed heart of "front-load the smart compute offline." It is the *same idea* as Compiled Retrieval, and it works — the only twist NRAG adds is doing it **training-free, via an LLM, at index time.**
 
 ### 2.6 Market reality — the wind is at your back
 
 - **The vector-DB correction is happening.** Pinecone (~$750M valuation, 2023) reportedly stalled (~$14M ARR, lost Notion, founder moved to Chief Scientist in Sep 2025). The narrative shifted hard: *"From shiny object to sober reality,"* *"Vector search is reaching its limit"* (close ≠ correct: returns "Error 222" for "Error 221"). Hybrid is now the production default; "you may not need a dedicated vector DB" (pgvector, ParadeDB, Elastic/OpenSearch hybrid) is mainstream.
-- **Developers actively want infra-free lexical search.** `bm25s` (pure NumPy, up to 500× faster than rank-bm25, matches Elasticsearch BM25, `pip install`, no Java/GPU) hit the HN front page. That's KAPI's exact lane, validated.
-- **Embedding cost is recurring and avoidable.** ~$0.02–0.13 / 1M tokens *at both index and query time*, **~6.1 GB RAM per 1M docs at 1536-d**, plus vector-DB ops. KAPI's number is **$0** at query time and **$0** for storage of vectors. That's a TCO pitch, not a vibe.
+- **Developers actively want infra-free lexical search.** `bm25s` (pure NumPy, up to 500× faster than rank-bm25, matches Elasticsearch BM25, `pip install`, no Java/GPU) hit the HN front page. That's NRAG's exact lane, validated.
+- **Embedding cost is recurring and avoidable.** ~$0.02–0.13 / 1M tokens *at both index and query time*, **~6.1 GB RAM per 1M docs at 1536-d**, plus vector-DB ops. NRAG's number is **$0** at query time and **$0** for storage of vectors. That's a TCO pitch, not a vibe.
 - **Competitors** (LlamaIndex ~45k★, RAGFlow ~65k★, Haystack, txtai, RAGatouille/ColBERT) are heavyweight or embedding-centric. The recurring complaint is the **"hidden 80%"** of RAG infra and ongoing tuning. Nobody owns "zero-setup, embedding-free, *and provably competitive on hard queries*."
 
 ---
@@ -124,11 +124,11 @@ Frame the entire category as a compute-placement choice, and name the axis so th
   Query-time reasoning    ── LLM reasons on every query              (interpreter)
   Trained reasoning model ── smart compute frozen into weights       (special-purpose silicon)
   ───────────────────────────────────────────────────────────────────────────────
-  KAPI / Compiled Retrieval ── LLM compiles each doc ONCE, offline;  (AOT compiler)
+  NRAG / Compiled Retrieval ── LLM compiles each doc ONCE, offline;  (AOT compiler)
                                queries run as cheap lexical bytecode
 ```
 
-The compiler analogy is not just marketing — it dictates the architecture, the DX (`kapi compile ./docs`), the benchmark story (compile-time vs query-time cost), and the business model (the compiler is the IP). It also gives developers an instantly-graspable mental model, which is how libraries win adoption.
+The compiler analogy is not just marketing — it dictates the architecture, the DX (`nrag compile ./docs`), the benchmark story (compile-time vs query-time cost), and the business model (the compiler is the IP). It also gives developers an instantly-graspable mental model, which is how libraries win adoption.
 
 **Claim to defend:** *for a fixed query-time budget, moving reasoning from serve-time to compile-time is Pareto-superior whenever the corpus is queried more than a handful of times* — which is essentially always.
 
@@ -140,14 +140,14 @@ One mechanism, five pillars. Pillar 2 is the genuinely new, publishable nugget; 
 
 ### Pillar 1 — The index-time reasoning compiler (the unification)
 
-For each chunk, an LLM runs **offline, cached by content-hash** (KAPI already has this cache + cost guard), and emits a *bundle*:
+For each chunk, an LLM runs **offline, cached by content-hash** (NRAG already has this cache + cost guard), and emits a *bundle*:
 
 - a **chunk-specific context blurb** (Anthropic) — situate it;
 - the **questions/claims this chunk answers** (doc2query) — surface queries;
 - **atomic, decontextualized propositions** (Dense X) — resolve "it/the company/this" so rare entities are matchable;
 - **reasoning expansion** — the *inferential closure*: second-order facts, implications, and the multi-hop bridges a knowledgeable reader would draw that are **not lexically present**. *This is the BRIGHT-winning signal, precomputed.* (e.g. a passage stating a function's time complexity also "answers" a query about whether it scales to N=10⁹ — that bridge is generated and indexed.)
 
-All four are *text*. They go into the **enriched lexical fields**, never into the displayed/cited text (KAPI's existing `indexed_text` vs `raw_text` split is exactly the right substrate).
+All four are *text*. They go into the **enriched lexical fields**, never into the displayed/cited text (NRAG's existing `indexed_text` vs `raw_text` split is exactly the right substrate).
 
 ### Pillar 2 — ★ Consensus term weighting (the new, training-free learned-sparse mechanism)
 
@@ -187,7 +187,7 @@ What's defensibly **new** here: (2) consensus/self-consistency as a training-fre
 
 **Benchmark dominance.** The hero benchmark is **BRIGHT**, not scifact — that's the board where embedding-free *wins* and dense *collapses* (18.3!). Target: **beat off-the-shelf dense decisively at $0 query cost**, and approach the embedding-free SOTA (LATTICE 46.7) while being **cheaper at query time than LATTICE** (LATTICE pays an LLM traversal per query; CSC pays BM25). Keep BEIR for breadth/parity and your existing cost-tiered leaderboard as the format — it's already your credibility moat.
 
-**Developer adoption.** The compiler mental model (`kapi compile ./docs && kapi query`), `pip install` with no model/GPU/DB, $0 query cost, deterministic + explainable scores, bm25s-class speed, and **drop-in LangChain/LlamaIndex retriever adapters** so trying it is one line, not a migration. Lead with a reproducible BRIGHT win + a TCO table vs a dense+vector-DB stack. This is the bm25s/RAGatouille playbook, with a quality proof attached.
+**Developer adoption.** The compiler mental model (`nrag compile ./docs && nrag query`), `pip install` with no model/GPU/DB, $0 query cost, deterministic + explainable scores, bm25s-class speed, and **drop-in LangChain/LlamaIndex retriever adapters** so trying it is one line, not a migration. Lead with a reproducible BRIGHT win + a TCO table vs a dense+vector-DB stack. This is the bm25s/RAGatouille playbook, with a quality proof attached.
 
 **Startup wedge.** The **compiler is the IP**: OSS the fast retriever (win stars), monetize the **hosted/managed compilation pipeline** (the expensive, value-adding, hard-to-replicate step) — serving stays free and local. Wedge cohorts: teams burned by vector-DB cost/complexity (the Pinecone-correction crowd) and **edge / on-prem / air-gapped / regulated** deployments that *structurally cannot* ship data to an embedding API or run a vector DB. "No embeddings, no vector DB, no GPU, provably competitive on hard queries" is a clean, quantifiable pitch.
 
@@ -195,9 +195,9 @@ What's defensibly **new** here: (2) consensus/self-consistency as a training-fre
 
 ## 7. How to prove it (benchmark & experiment plan)
 
-Run these in your existing `kapi.eval` harness; keep the honest cost-tier format.
+Run these in your existing `nrag.eval` harness; keep the honest cost-tier format.
 
-1. **Hero result — BRIGHT.** KAPI-lexical vs KAPI+CSC vs off-the-shelf dense vs BM25+CoT vs (if feasible) LATTICE. Headline you're hunting: *CSC beats off-the-shelf dense on BRIGHT at $0 query cost; with the router on, it approaches query-time-reasoning systems at a fraction of their per-query cost.*
+1. **Hero result — BRIGHT.** NRAG-lexical vs NRAG+CSC vs off-the-shelf dense vs BM25+CoT vs (if feasible) LATTICE. Headline you're hunting: *CSC beats off-the-shelf dense on BRIGHT at $0 query cost; with the router on, it approaches query-time-reasoning systems at a fraction of their per-query cost.*
 2. **Ablations (the paper's spine), each isolated:** +context blurb, +doc2query, +propositions, +reasoning-expansion, +consensus weighting (k=1 vs 3 vs 5 vs 8), +literal anchoring on/off, RRF vs convex fusion. Show each pillar's marginal nDCG and the consensus-k curve.
 3. **Decorrelation test (kill-shot for Pillar 4):** measure rank correlation between Leg A and Leg B; the fusion gain must come from genuine complementarity, not echo.
 4. **The BM42 honesty gate:** benchmark against a **well-tuned** BM25 (k1/b swept) and a real dense baseline on **full BEIR**, not one easy dataset. Report where CSC *loses* (it will, on paraphrase-heavy MTEB-style queries). Credibility is the moat; do not repeat BM42's mistake.
@@ -209,17 +209,17 @@ Run these in your existing `kapi.eval` harness; keep the honest cost-tier format
 ## 8. Roadmap (phased, each phase shippable)
 
 > **Implementation status (2026-07-01):** Phases 0–5 are all built and tested (87 passed / 3
-> skipped). Compiler + CSC consensus/anchoring (`kapi/augment/compiler.py`,
-> `kapi/retrieve/sparse.py`), two-leg fusion + adaptive router (`kapi/retrieve/router.py`),
-> portable bundles + hosted compile service (`kapi/portable.py`, `kapi/service.py`), TCO model
-> and LangChain/LlamaIndex adapters (`kapi/tco.py`, `kapi/integrations/`). Remaining Phase-4
+> skipped). Compiler + CSC consensus/anchoring (`nrag/augment/compiler.py`,
+> `nrag/retrieve/sparse.py`), two-leg fusion + adaptive router (`nrag/retrieve/router.py`),
+> portable bundles + hosted compile service (`nrag/portable.py`, `nrag/service.py`), TCO model
+> and LangChain/LlamaIndex adapters (`nrag/tco.py`, `nrag/integrations/`). Remaining Phase-4
 > work is content, not code: the reproducible BRIGHT-win blog post and the paper.
 
-- **Phase 0 — Reframe (days).** Adopt the *Compiled Retrieval* narrative across README/site. Add the `compile` verb to the CLI/API as an alias over `add`. Add the BRIGHT runner to `kapi.eval`. Cheap, high-leverage positioning.
+- **Phase 0 — Reframe (days).** Adopt the *Compiled Retrieval* narrative across README/site. Add the `compile` verb to the CLI/API as an alias over `add`. Add the BRIGHT runner to `nrag.eval`. Cheap, high-leverage positioning.
 - **Phase 1 — Compiler v1 (1–2 wks).** Unify existing contextual indexing with **doc2query + propositions** in one offline pass, each landing in `indexed_text`. Reuse the content-hash cache + cost guard. Add the **doc2query-- self-consistency filter**. Re-run scifact + add BRIGHT. *Expect a real jump on BRIGHT from propositions + doc2query alone — bankable before the novel part.*
 - **Phase 2 — CSC core (2–4 wks).** Implement **consensus term weighting** (sample k, weight by agreement) + **literal anchoring** (BM25 floor) → per-chunk learned-sparse weights stored in the engine. This needs per-term boosting; Tantivy term-queries can carry weights, or move the weighted leg to the SQLite/bm25s path first. Full ablations. **This is the paper.**
 - **Phase 3 — Asymmetric fusion + router (1–2 wks).** Two-leg convex/RRF fusion; the confidence-gated **adaptive router** for query-time escalation. Land the cost-tier leaderboard update.
-- **Phase 4 — Adoption surface (ongoing).** LangChain/LlamaIndex retriever adapters, `kapi compile` ergonomics, TCO calculator, a reproducible BRIGHT-win blog post + the paper. 
+- **Phase 4 — Adoption surface (ongoing).** LangChain/LlamaIndex retriever adapters, `nrag compile` ergonomics, TCO calculator, a reproducible BRIGHT-win blog post + the paper. 
 - **Phase 5 — Wedge (when traction shows).** Hosted compilation service; on-prem/air-gapped distribution.
 
 ---
@@ -230,14 +230,14 @@ Run these in your existing `kapi.eval` harness; keep the honest cost-tier format
 - **Index bloat & compile cost.** k-sampling multiplies index-time tokens. *Mitigation:* prompt caching, small/local compiler model, consensus pruning (drop low-agreement terms — this is also the doc2query-- −33% win), and the cache makes re-compiles free.
 - **Some reasoning is irreducibly query-specific** and can't be precompiled. *Mitigation:* the router escalates those to query-time CoT — be upfront that CSC is "95% of the quality at ~1% of the query cost, escalate the rest," not "100% offline magic."
 - **Trained reasoning models (DIVER/BGE-Reasoner) score higher.** True — but they're not embedding-free or cheap. Compete on the **cost-quality Pareto frontier**, not the absolute top; that's a winnable, honest claim.
-- **Re-compilation on corpus churn.** KAPI's incremental `sync` already only re-indexes changed files; consensus is per-chunk and cached, so churn cost is bounded.
+- **Re-compilation on corpus churn.** NRAG's incremental `sync` already only re-indexes changed files; consensus is per-chunk and cached, so churn cost is bounded.
 - **"It's just doc2query + tricks."** The defensible novelty is consensus weighting (training-free learned-sparse) + literal anchoring (training-free failure-mode fix) + reasoning-expansion-to-lexical for BRIGHT. Lead the paper with those three, benchmark honestly, and the contribution stands.
 
 ---
 
 ## 10. Bottom line
 
-You don't need to out-embed the embedders. You need to **change where the compute happens** and own the framing. *Compiled Retrieval* + *Consensus Sparse Compilation* gives KAPI (1) a hero benchmark it can win (BRIGHT, where dense collapses and embedding-free already sits at the top via LATTICE), (2) a developer story with an instantly-graspable mental model and $0 query cost, and (3) a business where the compiler is the moat. The fast/cheap soul of the project is preserved — in fact it becomes the *thesis*, not a compromise.
+You don't need to out-embed the embedders. You need to **change where the compute happens** and own the framing. *Compiled Retrieval* + *Consensus Sparse Compilation* gives NRAG (1) a hero benchmark it can win (BRIGHT, where dense collapses and embedding-free already sits at the top via LATTICE), (2) a developer story with an instantly-graspable mental model and $0 query cost, and (3) a business where the compiler is the moat. The fast/cheap soul of the project is preserved — in fact it becomes the *thesis*, not a compromise.
 
 Next concrete step: **add the BRIGHT runner and ship Compiler v1 (Phase 1)** to bank the propositions/doc2query gain, then build CSC (Phase 2) — that's the paper and the moat.
 

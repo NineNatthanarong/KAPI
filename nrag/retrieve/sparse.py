@@ -9,7 +9,7 @@ BM25 speed with no embedding model and no vector DB.
 This is "Leg B" of the asymmetric all-sparse hybrid: it fuses with the plain-lexical Leg A
 (the inverted-index engine) to reproduce hybrid's two-error-profile win without anything dense.
 
-Pure-Python, dependency-free, persisted as one JSON next to the index so ``Kapi.open``
+Pure-Python, dependency-free, persisted as one JSON next to the index so ``Nrag.open``
 reloads it. The inverted index + document frequencies are derived from the per-chunk vectors
 (the source of truth) and rebuilt lazily after any mutation.
 """
@@ -111,7 +111,7 @@ class SparseConsensusIndex:
     def commit(self) -> None:
         if not self.path:
             return
-        cache_dir = os.path.join(self.path, ".kapi_csc")
+        cache_dir = os.path.join(self.path, ".nrag_csc")
         os.makedirs(cache_dir, exist_ok=True)
         tmp = os.path.join(cache_dir, _STORE + ".tmp")
         with open(tmp, "w", encoding="utf-8") as fh:
@@ -119,7 +119,7 @@ class SparseConsensusIndex:
         os.replace(tmp, os.path.join(cache_dir, _STORE))
 
     def _load(self) -> None:
-        store = os.path.join(self.path, ".kapi_csc", _STORE)  # type: ignore[arg-type]
+        store = os.path.join(self.path, ".nrag_csc", _STORE)  # type: ignore[arg-type]
         if not os.path.exists(store):
             return
         try:

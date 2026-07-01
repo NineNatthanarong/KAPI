@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 
-from kapi import Kapi
+from nrag import Nrag
 
 
 def _write(d, name, text):
@@ -12,12 +12,12 @@ def _write(d, name, text):
 
 def test_persist_and_reopen(tmp_path, corpus_docs):
     idx = str(tmp_path / "idx")
-    rag = Kapi(path=idx)
+    rag = Nrag(path=idx)
     rag.add(corpus_docs)
     top1 = rag.search("programming language readable syntax", k=1)[0].chunk.doc_id
     rag.close()
 
-    rag2 = Kapi.open(idx)
+    rag2 = Nrag.open(idx)
     assert rag2.store.stats()["num_chunks"] == len(corpus_docs)
     top2 = rag2.search("programming language readable syntax", k=1)[0].chunk.doc_id
     assert top1 == top2 == "python"
@@ -33,7 +33,7 @@ def test_incremental_sync(tmp_path):
     _write(d, "fox.txt", "The quick brown fox jumps over the lazy dog.")
 
     idx = str(tmp_path / "idx")
-    rag = Kapi(path=idx)
+    rag = Nrag(path=idx)
     rep = rag.add(d)
     assert rep.added == 3
 
@@ -57,7 +57,7 @@ def test_incremental_sync(tmp_path):
 
 
 def test_force_reindex_no_duplicate_chunks(corpus_docs):
-    rag = Kapi()
+    rag = Nrag()
     rag.add(corpus_docs)
     n1 = rag.engine.stats()["num_chunks"]
     rag.add(corpus_docs, force=True)          # re-index everything
@@ -72,7 +72,7 @@ def test_force_reindex_no_duplicate_chunks(corpus_docs):
 
 def test_unchanged_docs_skipped(tmp_path, corpus_docs):
     idx = str(tmp_path / "idx")
-    rag = Kapi(path=idx)
+    rag = Nrag(path=idx)
     rag.add(corpus_docs)
     rep = rag.add(corpus_docs)  # nothing changed
     assert rep.added == 0 and rep.changed == 0 and rep.unchanged == len(corpus_docs)

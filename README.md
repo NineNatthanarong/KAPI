@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/NineNatthanarong/KAPI/main/assets/banner.png" alt="KAPI — Compiled Retrieval, embedding-free RAG" width="100%">
+<img src="https://raw.githubusercontent.com/NineNatthanarong/NRAG/main/assets/banner.png" alt="NRAG — Compiled Retrieval, embedding-free RAG" width="100%">
 
 <br/>
 
@@ -24,10 +24,10 @@
 Can a retriever with **no embedding model** compete with dense embeddings? On **BEIR scifact** — yes.
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/NineNatthanarong/KAPI/main/assets/perf-scifact.png" alt="BEIR scifact nDCG@10 — Kapi vs dense embedders" width="860">
+<img src="https://raw.githubusercontent.com/NineNatthanarong/NRAG/main/assets/perf-scifact.png" alt="BEIR scifact nDCG@10 — Nrag vs dense embedders" width="860">
 </div>
 
-**The honest headline.** In the cost-fair tier (retrieval only, no per-query model), *Kapi doc2query×2* — **no embeddings, no GPU, no vector DB** — hits **nDCG@10 0.7291 / MRR 0.7042**. That **statistically ties `qwen3-embedding-4b`** (0.7308) and **beats it on MRR**, while clearly beating `text-embedding-3-small` and `bge-m3` — all at **`$0` per query**. Only the 8B embedder is decisively ahead. Full 30-row, cost-tiered table with ablations: [`benchmarks/scifact_results.md`](benchmarks/scifact_results.md).
+**The honest headline.** In the cost-fair tier (retrieval only, no per-query model), *Nrag doc2query×2* — **no embeddings, no GPU, no vector DB** — hits **nDCG@10 0.7291 / MRR 0.7042**. That **statistically ties `qwen3-embedding-4b`** (0.7308) and **beats it on MRR**, while clearly beating `text-embedding-3-small` and `bge-m3` — all at **`$0` per query**. Only the 8B embedder is decisively ahead. Full 30-row, cost-tiered table with ablations: [`benchmarks/scifact_results.md`](benchmarks/scifact_results.md).
 
 And on **BRIGHT** — the reasoning-intensive benchmark where off-the-shelf dense *collapses* (the #1 MTEB model scores just **18.3**) — embedding-free is exactly where the frontier lives:
 
@@ -42,13 +42,13 @@ Compiled Retrieval's target: **beat off-the-shelf dense at `$0` query cost**, an
 ## Quickstart
 
 ```bash
-pip install kapi
+pip install nrag
 ```
 
 ```python
-from kapi import Kapi
+from nrag import Nrag
 
-rag = Kapi(preset="fast")                      # pure lexical — no LLM, no setup, no models
+rag = Nrag(preset="fast")                      # pure lexical — no LLM, no setup, no models
 rag.add_texts(["Dijkstra finds shortest paths.", "Tomato soup needs basil."])
 print(rag.search("shortest path", k=1)[0].text)
 # -> Dijkstra finds shortest paths.
@@ -63,11 +63,11 @@ That's the whole install: no model download, no Java, no GPU, no vector DB. LLM 
 ### 1 · Pure lexical (no LLM)
 
 ```python
-from kapi import Kapi, Document
+from nrag import Nrag, Document
 
-rag = Kapi(preset="fast", path="./idx")             # on-disk; omit path for in-memory
+rag = Nrag(preset="fast", path="./idx")             # on-disk; omit path for in-memory
 rag.add("docs/")                                    # a dir, file, glob, texts, or Documents
-rag.add("report.pdf")                               # needs kapi[pdf]
+rag.add("report.pdf")                               # needs nrag[pdf]
 rag.add_texts(["first passage", "second passage"])
 rag.add([Document(doc_id="d1", text="...", source="d1.md", metadata={"team": "billing"})])
 
@@ -81,7 +81,7 @@ rag.close()
 The contract is one method, `complete`. Use the built-in OpenAI-compatible adapter, wrap a function, or pass nothing.
 
 ```python
-from kapi.llm import OpenAICompatLLM, CallableLLM
+from nrag.llm import OpenAICompatLLM, CallableLLM
 
 # Any OpenAI-compatible endpoint: OpenAI, Ollama, vLLM, llama.cpp, LM Studio, Together, Groq...
 llm = OpenAICompatLLM(base_url="http://localhost:11434/v1/", model="llama3.2", api_key="ollama")
@@ -100,7 +100,7 @@ llm = CallableLLM(lambda prompt: my_model(prompt))
 | `quality` *(default)* | ✔ | + contextual indexing (offline) + query expansion + grounded answers | best general RAG |
 | `compiled` | ✔ | + the index-time **compiler** (CSC) + the adaptive **router** | reasoning corpora, `$0` queries |
 
-Any field is overridable: `Kapi(preset="compiled", consensus_k=5, engine="sqlite")`.
+Any field is overridable: `Nrag(preset="compiled", consensus_k=5, engine="sqlite")`.
 
 ### 4 · Compiled Retrieval
 
@@ -120,11 +120,11 @@ One cached offline pass per chunk emits an enrichment **bundle** — all plain t
 ```python
 llm = OpenAICompatLLM(base_url="...", model="...", api_key="...")
 
-rag = Kapi(llm=llm, preset="compiled", path="./idx")
+rag = Nrag(llm=llm, preset="compiled", path="./idx")
 rag.compile("docs/")                                # offline, cached by content-hash
 print(rag.query("does this scale to a billion rows?").answer)
 
-rag = Kapi.open("./idx")                             # reopen with NO llm — it still serves
+rag = Nrag.open("./idx")                             # reopen with NO llm — it still serves
 ```
 
 **Adaptive router** — the only query-time LLM use, and it's gated. The first lexical pass is ~1 ms and `$0`; a cheap confidence signal decides whether to spend one LLM call escalating (expansion + re-search). Short queries are treated as precise and never escalated — dodging the expansion *precision trap*.
@@ -137,7 +137,7 @@ print(rag.last_route)   # RouterDecision(escalate=..., reason='no_hits'|'low_mar
 ### 5 · Persistent, incremental, portable
 
 ```python
-rag = Kapi.open("./idx", llm=llm)
+rag = Nrag.open("./idx", llm=llm)
 rag.sync("docs/")                     # re-index only changed files; drop deleted ones
 rag.remove("d1")                      # delete one document
 ```
@@ -145,15 +145,15 @@ rag.remove("d1")                      # delete one document
 **Compile once, serve anywhere (air-gapped).** The serving index is a plain lexical artifact — bundle it and ship it to an on-prem / offline box:
 
 ```bash
-kapi export --index ./idx --out ship.kapi.tgz      # portable bundle (drops the LLM cache)
-kapi import ship.kapi.tgz --index ./served         # unpack on the target machine
-kapi query  "how do refunds work?" --index ./served   # $0, ~1 ms, no model, no network
+nrag export --index ./idx --out ship.nrag.tgz      # portable bundle (drops the LLM cache)
+nrag import ship.nrag.tgz --index ./served         # unpack on the target machine
+nrag query  "how do refunds work?" --index ./served   # $0, ~1 ms, no model, no network
 ```
 
 Or run the **hosted compilation service** — clients POST docs, get back a serving bundle; no embedding model ever crosses the wire:
 
 ```bash
-kapi serve --base-url http://localhost:11434/v1/ --model llama3.2   # POST /compile, GET /bundle/<job>
+nrag serve --base-url http://localhost:11434/v1/ --model llama3.2   # POST /compile, GET /bundle/<job>
 ```
 
 ### 6 · Answers, citations, streaming
@@ -170,7 +170,7 @@ for tok in rag.query_stream("How do refunds work?"):
 ### 7 · Drop into LangChain / LlamaIndex
 
 ```python
-from kapi.integrations import to_langchain_retriever, to_llamaindex_retriever
+from nrag.integrations import to_langchain_retriever, to_llamaindex_retriever
 lc = to_langchain_retriever(rag, k=5)      # a LangChain BaseRetriever
 li = to_llamaindex_retriever(rag, k=5)     # a LlamaIndex BaseRetriever
 ```
@@ -178,24 +178,24 @@ li = to_llamaindex_retriever(rag, k=5)     # a LlamaIndex BaseRetriever
 ### 8 · Command line
 
 ```bash
-kapi compile ./docs --index ./idx --base-url http://localhost:11434/v1/ --model llama3.2
-kapi query  "how do refunds work?" --index ./idx
-kapi stats  --index ./idx
-kapi tco    --queries-per-month 5000000 --months 36    # cost model (below)
+nrag compile ./docs --index ./idx --base-url http://localhost:11434/v1/ --model llama3.2
+nrag query  "how do refunds work?" --index ./idx
+nrag stats  --index ./idx
+nrag tco    --queries-per-month 5000000 --months 36    # cost model (below)
 ```
 
 ---
 
 ## Evaluation
 
-Kapi ships its own **cost-tiered** evaluation harness (`kapi.eval`). The rule: never compare a `$0`-per-query lexical system against one that pays a model per query without labelling the tier. Credibility is the moat.
+Nrag ships its own **cost-tiered** evaluation harness (`nrag.eval`). The rule: never compare a `$0`-per-query lexical system against one that pays a model per query without labelling the tier. Credibility is the moat.
 
 ### The metrics module (pure-Python, no deps)
 
-`kapi.eval.ir_metrics` implements the standard IR metrics with zero dependencies — metric strings `ndcg@k`, `recall@k`, `precision@k`, `hit@k`, `mrr`, `map`.
+`nrag.eval.ir_metrics` implements the standard IR metrics with zero dependencies — metric strings `ndcg@k`, `recall@k`, `precision@k`, `hit@k`, `mrr`, `map`.
 
 ```python
-from kapi.eval import evaluate_run
+from nrag.eval import evaluate_run
 
 qrels = {"q1": {"docA": 1, "docC": 1}}                    # ground-truth relevance
 run   = {"q1": {"docA": 9.1, "docB": 4.2, "docC": 2.0}}  # your system's doc -> score
@@ -203,10 +203,10 @@ print(evaluate_run(qrels, run, metrics=("ndcg@10", "recall@10", "mrr")))
 # {'ndcg@10': 0.92, 'recall@10': 1.0, 'mrr': 1.0}
 ```
 
-Evaluate Kapi on your own labelled queries:
+Evaluate Nrag on your own labelled queries:
 
 ```python
-rag = Kapi(preset="fast"); rag.add("corpus/")
+rag = Nrag(preset="fast"); rag.add("corpus/")
 run = {}
 for qid, text in my_queries.items():
     scores = {}
@@ -219,17 +219,17 @@ print(evaluate_run(my_qrels, run, ("ndcg@10", "recall@100", "mrr")))
 
 ### BEIR & BRIGHT runners
 
-Install the extra (`pip install "kapi[eval]"`), then build a fresh index via a factory and score it:
+Install the extra (`pip install "nrag[eval]"`), then build a fresh index via a factory and score it:
 
 ```python
-from kapi.eval import run_beir, run_bright, run_bright_all
+from nrag.eval import run_beir, run_bright, run_bright_all
 
 # BEIR — breadth / parity, scored against the published BM25 anchor
-print(run_beir(lambda: Kapi(preset="fast"), dataset="scifact", split="test"))
+print(run_beir(lambda: Nrag(preset="fast"), dataset="scifact", split="test"))
 
 # BRIGHT — the reasoning-intensive hero benchmark (needs an LLM for the compiled preset)
-print(run_bright(lambda: Kapi(llm=llm, preset="compiled"), subset="biology"))
-results = run_bright_all(lambda: Kapi(llm=llm, preset="compiled"))   # all 12 subsets
+print(run_bright(lambda: Nrag(llm=llm, preset="compiled"), subset="biology"))
+results = run_bright_all(lambda: Nrag(llm=llm, preset="compiled"))   # all 12 subsets
 ```
 
 **What the harness taught us — findings, not vibes:**
@@ -247,8 +247,8 @@ OPENROUTER_API_KEY=... python benchmarks/csc_eval.py compiled --index ./idx_csc 
 ### Reproducing
 
 ```bash
-pip install "kapi[eval]"
-export KAPI_LLM_BASE_URL=... KAPI_LLM_MODEL=... KAPI_LLM_API_KEY=...   # any OpenAI-compatible endpoint
+pip install "nrag[eval]"
+export NRAG_LLM_BASE_URL=... NRAG_LLM_MODEL=... NRAG_LLM_API_KEY=...   # any OpenAI-compatible endpoint
 python -m pytest                                                        # 87 passing, 3 opt-in skipped
 ```
 
@@ -256,17 +256,17 @@ python -m pytest                                                        # 87 pas
 
 ## Cost
 
-Evaluation isn't only quality — it's the bill. Kapi pays the smart compute **once, at compile time**; a dense + vector-DB stack pays it on **every query, forever**, plus RAM to hold vectors resident.
+Evaluation isn't only quality — it's the bill. Nrag pays the smart compute **once, at compile time**; a dense + vector-DB stack pays it on **every query, forever**, plus RAM to hold vectors resident.
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/NineNatthanarong/KAPI/main/assets/tco.png" alt="KAPI vs dense+vectorDB cumulative cost over 12 months" width="860">
+<img src="https://raw.githubusercontent.com/NineNatthanarong/NRAG/main/assets/tco.png" alt="NRAG vs dense+vectorDB cumulative cost over 12 months" width="860">
 </div>
 
 ```bash
-kapi tco --docs 1000000 --queries-per-month 5000000 --months 36
+nrag tco --docs 1000000 --queries-per-month 5000000 --months 36
 ```
 ```python
-from kapi.tco import TCOInputs, compute_tco, format_report
+from nrag.tco import TCOInputs, compute_tco, format_report
 print(format_report(TCOInputs(), compute_tco(TCOInputs())))
 ```
 
@@ -305,20 +305,20 @@ Swap the lexical backend without touching anything else:
 |---|---|---|
 | `tantivy` *(default)* | core | fast, persistent, multi-field scoring |
 | `sqlite` | core | FTS5, zero extra deps, portable single file |
-| `bm25s` | `kapi[bm25s]` | in-memory, pure-NumPy, fast batch |
+| `bm25s` | `nrag[bm25s]` | in-memory, pure-NumPy, fast batch |
 
 ```python
-rag = Kapi(preset="fast", engine="sqlite", path="./idx")
+rag = Nrag(preset="fast", engine="sqlite", path="./idx")
 ```
 
 ## Install extras
 
 ```bash
-pip install kapi                # core: tantivy + stemmer + http client. No models, ever.
-pip install "kapi[openai]"      # openai SDK + tiktoken (exact token counts)
-pip install "kapi[bm25s]"       # in-memory bm25s engine
-pip install "kapi[pdf,html]"    # PDF text + fast HTML loaders
-pip install "kapi[eval]"        # ranx / pytrec_eval / BEIR / RAGAS / datasets
+pip install nrag                # core: tantivy + stemmer + http client. No models, ever.
+pip install "nrag[openai]"      # openai SDK + tiktoken (exact token counts)
+pip install "nrag[bm25s]"       # in-memory bm25s engine
+pip install "nrag[pdf,html]"    # PDF text + fast HTML loaders
+pip install "nrag[eval]"        # ranx / pytrec_eval / BEIR / RAGAS / datasets
 ```
 
 ## Design guarantees

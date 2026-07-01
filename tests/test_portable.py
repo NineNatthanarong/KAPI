@@ -9,8 +9,8 @@ import tarfile
 
 import pytest
 
-from kapi import Kapi
-from kapi.portable import export_index, import_index, read_bundle_manifest
+from nrag import Nrag
+from nrag.portable import export_index, import_index, read_bundle_manifest
 
 
 class _FakeLLM:
@@ -33,7 +33,7 @@ _DOCS = ["Dijkstra computes shortest paths in a weighted graph.",
 
 
 def _compile_index(path: str) -> None:
-    rag = Kapi(llm=_FakeLLM(), preset="compiled", path=path)
+    rag = Nrag(llm=_FakeLLM(), preset="compiled", path=path)
     rag.compile_texts(_DOCS)
     rag.close()
 
@@ -42,13 +42,13 @@ def test_export_import_roundtrip_serves_offline(tmp_path):
     src = str(tmp_path / "idx")
     _compile_index(src)
 
-    bundle = str(tmp_path / "ship.kapi.tgz")
+    bundle = str(tmp_path / "ship.nrag.tgz")
     info = export_index(src, bundle)
     assert info.num_files > 0 and os.path.exists(bundle)
 
     dest = str(tmp_path / "restored")           # a *different* directory (simulates another box)
     import_index(bundle, dest)
-    served = Kapi.open(dest)                     # NO llm
+    served = Nrag.open(dest)                     # NO llm
     try:
         assert served._legb is not None and served._legb.vectors    # Leg B travelled
         hits = served.search("cheapest route between nodes", k=2)
@@ -62,33 +62,33 @@ def test_export_import_roundtrip_serves_offline(tmp_path):
 def test_bundle_excludes_llm_cache_by_default(tmp_path):
     src = str(tmp_path / "idx")
     _compile_index(src)
-    assert os.path.isdir(os.path.join(src, ".kapi_cache"))          # compiler wrote a cache
+    assert os.path.isdir(os.path.join(src, ".nrag_cache"))          # compiler wrote a cache
 
-    default = str(tmp_path / "d.kapi.tgz")
+    default = str(tmp_path / "d.nrag.tgz")
     export_index(src, default)
     with tarfile.open(default) as t:
         names = t.getnames()
-    assert not any(n.split("/")[0] == ".kapi_cache" for n in names)
+    assert not any(n.split("/")[0] == ".nrag_cache" for n in names)
     assert read_bundle_manifest(default)["includes_cache"] is False
     assert read_bundle_manifest(default)["serve_only"] is True
 
-    withcache = str(tmp_path / "c.kapi.tgz")
+    withcache = str(tmp_path / "c.nrag.tgz")
     export_index(src, withcache, include_cache=True)
     with tarfile.open(withcache) as t:
         names = t.getnames()
-    assert any(".kapi_cache" in n for n in names)
+    assert any(".nrag_cache" in n for n in names)
 
 
 def test_facade_export_bundle_roundtrip(tmp_path):
-    """The Kapi.export_bundle / import_bundle convenience wrappers on an open index."""
+    """The Nrag.export_bundle / import_bundle convenience wrappers on an open index."""
     src = str(tmp_path / "idx")
-    rag = Kapi(llm=_FakeLLM(), preset="compiled", path=src)
+    rag = Nrag(llm=_FakeLLM(), preset="compiled", path=src)
     rag.compile_texts(_DOCS)
-    bundle = str(tmp_path / "b.kapi.tgz")
+    bundle = str(tmp_path / "b.nrag.tgz")
     rag.export_bundle(bundle)                   # flushes + archives while open
     rag.close()
 
-    served = Kapi.import_bundle(bundle, str(tmp_path / "dest"))
+    served = Nrag.import_bundle(bundle, str(tmp_path / "dest"))
     try:
         hits = served.search("cheapest route between nodes", k=2)
         assert hits and "Dijkstra" in hits[0].chunk.raw_text
@@ -97,15 +97,15 @@ def test_facade_export_bundle_roundtrip(tmp_path):
 
 
 def test_export_requires_persisted_index(tmp_path):
-    rag = Kapi(llm=_FakeLLM(), preset="compiled")   # in-memory: no path
+    rag = Nrag(llm=_FakeLLM(), preset="compiled")   # in-memory: no path
     rag.compile_texts(_DOCS)
     with pytest.raises(ValueError):
-        rag.export_bundle(str(tmp_path / "x.kapi.tgz"))
+        rag.export_bundle(str(tmp_path / "x.nrag.tgz"))
     rag.close()
 
 
 def test_import_rejects_path_traversal(tmp_path):
-    evil = str(tmp_path / "evil.kapi.tgz")
+    evil = str(tmp_path / "evil.nrag.tgz")
     with tarfile.open(evil, "w:gz") as t:
         data = b"pwned"
         member = tarfile.TarInfo("../escape.txt")   # tries to write outside dest
@@ -119,7 +119,7 @@ def test_import_rejects_path_traversal(tmp_path):
 def test_import_refuses_nonempty_dest_without_overwrite(tmp_path):
     src = str(tmp_path / "idx")
     _compile_index(src)
-    bundle = str(tmp_path / "b.kapi.tgz")
+    bundle = str(tmp_path / "b.nrag.tgz")
     export_index(src, bundle)
 
     dest = str(tmp_path / "dest")

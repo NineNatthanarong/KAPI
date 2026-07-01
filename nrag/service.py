@@ -3,13 +3,13 @@
 The business model Compiled Retrieval implies: OSS the fast, embedding-free *retriever*
 (serving is free and local); monetize the expensive, value-adding step — *compilation*. This
 is that step behind an HTTP API. A client POSTs raw documents; the service runs the offline
-LLM compiler once and returns a portable, model-free serving bundle (:mod:`kapi.portable`)
-the client opens locally with ``Kapi.open`` (or ``kapi import``). The smart compute stays
+LLM compiler once and returns a portable, model-free serving bundle (:mod:`nrag.portable`)
+the client opens locally with ``Nrag.open`` (or ``nrag import``). The smart compute stays
 server-side; query time stays ~1 ms BM25 on the client, and no embedding model crosses the
 wire.
 
 Dependency-free: stdlib ``http.server`` only. The compiler LLM is *injected* (built from env
-by ``kapi serve``), so tests drive the whole pipeline with a stub LLM and no network.
+by ``nrag serve``), so tests drive the whole pipeline with a stub LLM and no network.
 
 Endpoints::
 
@@ -51,7 +51,7 @@ class CompilationService:
         self.preset = preset
         self.engine = engine
         self._owns_work_dir = work_dir is None
-        self.work_dir = work_dir or tempfile.mkdtemp(prefix="kapi-compile-")
+        self.work_dir = work_dir or tempfile.mkdtemp(prefix="nrag-compile-")
         os.makedirs(self.work_dir, exist_ok=True)
         self._jobs: dict[str, dict] = {}
         self._lock = threading.Lock()
@@ -67,15 +67,15 @@ class CompilationService:
         idx_dir = os.path.join(job_dir, "idx")
         os.makedirs(idx_dir, exist_ok=True)
 
-        from . import Kapi
+        from . import Nrag
 
-        rag = Kapi(llm=self.llm, preset=preset or self.preset, path=idx_dir, engine=self.engine)
+        rag = Nrag(llm=self.llm, preset=preset or self.preset, path=idx_dir, engine=self.engine)
         try:
             rep = rag.compile_texts(texts, prefix=prefix)
         finally:
             rag.close()
 
-        bundle_path = os.path.join(job_dir, "bundle.kapi.tgz")
+        bundle_path = os.path.join(job_dir, "bundle.nrag.tgz")
         info = export_index(idx_dir, bundle_path)
         record = {
             "job": job,
@@ -101,9 +101,9 @@ class CompilationService:
             rec = self._jobs.get(job)
         if not rec:
             return None
-        from . import Kapi
+        from . import Nrag
 
-        rag = Kapi.open(rec["index_dir"])          # no LLM: pure lexical serving
+        rag = Nrag.open(rec["index_dir"])          # no LLM: pure lexical serving
         try:
             hits = rag.search(query, k=k)
             return [{"chunk_id": h.chunk_id, "score": h.score, "source": h.source,
@@ -119,7 +119,7 @@ class CompilationService:
 # ---------------------------------------------------------------------- HTTP glue
 def _make_handler(service: CompilationService):
     class Handler(BaseHTTPRequestHandler):
-        server_version = f"kapi/{VERSION}"
+        server_version = f"nrag/{VERSION}"
 
         # ---- io helpers ----
         def _send_json(self, code: int, payload: dict) -> None:
@@ -142,7 +142,7 @@ def _make_handler(service: CompilationService):
         # ---- routes ----
         def do_GET(self) -> None:
             if self.path == "/health":
-                self._send_json(200, {"status": "ok", "service": "kapi-compile",
+                self._send_json(200, {"status": "ok", "service": "nrag-compile",
                                       "version": VERSION, "llm": service.llm is not None})
                 return
             if self.path.startswith("/bundle/"):
@@ -156,7 +156,7 @@ def _make_handler(service: CompilationService):
                 self.send_response(200)
                 self.send_header("Content-Type", "application/gzip")
                 self.send_header("Content-Disposition",
-                                 f'attachment; filename="{job}.kapi.tgz"')
+                                 f'attachment; filename="{job}.nrag.tgz"')
                 self.send_header("Content-Length", str(len(data)))
                 self.end_headers()
                 self.wfile.write(data)
@@ -214,7 +214,7 @@ def serve(host: str = "127.0.0.1", port: int = 8000, *, llm=None, preset: str = 
     service = CompilationService(llm=llm, preset=preset, work_dir=work_dir, engine=engine)
     httpd = build_server(host, port, service)
     kind = "with LLM compiler" if llm is not None else "NO LLM (pure-lexical compile)"
-    print(f"kapi compile service on http://{host}:{port}  [{kind}]  work_dir={service.work_dir}")
+    print(f"nrag compile service on http://{host}:{port}  [{kind}]  work_dir={service.work_dir}")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

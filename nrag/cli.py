@@ -1,10 +1,10 @@
-"""``kapi`` command line — the Compiled-Retrieval mental model: ``compile`` then ``query``.
+"""``nrag`` command line — the Compiled-Retrieval mental model: ``compile`` then ``query``.
 
-    kapi compile ./docs --index ./idx --preset compiled --base-url ... --model ...
-    kapi query  "how do refunds work?" --index ./idx
-    kapi stats  --index ./idx
+    nrag compile ./docs --index ./idx --preset compiled --base-url ... --model ...
+    nrag query  "how do refunds work?" --index ./idx
+    nrag stats  --index ./idx
 
-An LLM is optional. With ``--base-url`` (or ``KAPI_LLM_BASE_URL``) a chunk is compiled
+An LLM is optional. With ``--base-url`` (or ``NRAG_LLM_BASE_URL``) a chunk is compiled
 offline into its lexical closure; with no LLM, ``compile`` builds a pure-lexical index and
 ``query`` returns ranked chunks (no generated answer). All retrieval stays embedding-free.
 """
@@ -18,20 +18,20 @@ from typing import Optional
 
 
 def _build_llm(args) -> Optional[object]:
-    base_url = args.base_url or os.environ.get("KAPI_LLM_BASE_URL")
+    base_url = args.base_url or os.environ.get("NRAG_LLM_BASE_URL")
     if not base_url:
         return None
     from .llm import OpenAICompatLLM
 
-    model = args.model or os.environ.get("KAPI_LLM_MODEL") or "gpt-4o-mini"
-    api_key = args.api_key or os.environ.get("KAPI_LLM_API_KEY") or "not-needed"
+    model = args.model or os.environ.get("NRAG_LLM_MODEL") or "gpt-4o-mini"
+    api_key = args.api_key or os.environ.get("NRAG_LLM_API_KEY") or "not-needed"
     return OpenAICompatLLM(base_url=base_url, model=model, api_key=api_key)
 
 
-def _open_kapi(args, *, llm):
-    from . import Kapi
+def _open_nrag(args, *, llm):
+    from . import Nrag
 
-    return Kapi(llm=llm, preset=args.preset, path=args.index, engine=args.engine)
+    return Nrag(llm=llm, preset=args.preset, path=args.index, engine=args.engine)
 
 
 def _add_common(p: argparse.ArgumentParser) -> None:
@@ -48,7 +48,7 @@ def cmd_compile(args) -> int:
     if llm is None and args.preset == "compiled":
         print("note: no --base-url/LLM -> compiling a pure-lexical index (no enrichment).",
               file=sys.stderr)
-    rag = _open_kapi(args, llm=llm)
+    rag = _open_nrag(args, llm=llm)
     try:
         rep = rag.compile(args.source, force=args.force)
         print(rep)
@@ -60,7 +60,7 @@ def cmd_compile(args) -> int:
 
 def cmd_query(args) -> int:
     llm = _build_llm(args)
-    rag = _open_kapi(args, llm=llm)
+    rag = _open_nrag(args, llm=llm)
     try:
         res = rag.query(args.text, k=args.k)
         if res.answer is not None:
@@ -76,7 +76,7 @@ def cmd_query(args) -> int:
 
 
 def cmd_stats(args) -> int:
-    rag = _open_kapi(args, llm=None)
+    rag = _open_nrag(args, llm=None)
     try:
         print(rag.stats())
     finally:
@@ -99,7 +99,7 @@ def cmd_import(args) -> int:
     man = read_bundle_manifest(args.bundle)
     import_index(args.bundle, args.index, overwrite=args.overwrite)
     print(f"imported bundle -> {args.index} (engine={man.get('engine')}); "
-          f'serve with:  kapi query "..." --index {args.index}')
+          f'serve with:  nrag query "..." --index {args.index}')
     return 0
 
 
@@ -126,7 +126,7 @@ def cmd_tco(args) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="kapi",
+    parser = argparse.ArgumentParser(prog="nrag",
                                      description="Compiled Retrieval — embedding-free RAG.")
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -149,13 +149,13 @@ def build_parser() -> argparse.ArgumentParser:
     # ---- Phase 5: portable bundles + hosted compilation service ----
     pe = sub.add_parser("export", help="export an index as a portable serving bundle")
     pe.add_argument("--index", required=True, help="index dir to export")
-    pe.add_argument("--out", required=True, help="destination .kapi.tgz bundle")
+    pe.add_argument("--out", required=True, help="destination .nrag.tgz bundle")
     pe.add_argument("--include-cache", action="store_true",
                     help="also bundle the offline LLM compile cache (bigger; free re-compiles)")
     pe.set_defaults(func=cmd_export)
 
     pi = sub.add_parser("import", help="unpack a serving bundle into an index dir")
-    pi.add_argument("bundle", help="the .kapi.tgz bundle to unpack")
+    pi.add_argument("bundle", help="the .nrag.tgz bundle to unpack")
     pi.add_argument("--index", required=True, help="destination index dir")
     pi.add_argument("--overwrite", action="store_true", help="replace a non-empty dest")
     pi.set_defaults(func=cmd_import)
@@ -170,7 +170,7 @@ def build_parser() -> argparse.ArgumentParser:
     pv.add_argument("--api-key", default=None, help="LLM api key (default: not-needed)")
     pv.set_defaults(func=cmd_serve)
 
-    pt = sub.add_parser("tco", help="model KAPI vs dense+vectorDB total cost of ownership")
+    pt = sub.add_parser("tco", help="model NRAG vs dense+vectorDB total cost of ownership")
     pt.add_argument("--docs", type=int, default=1_000_000)
     pt.add_argument("--tokens-per-doc", type=int, default=500)
     pt.add_argument("--queries-per-month", type=int, default=1_000_000)

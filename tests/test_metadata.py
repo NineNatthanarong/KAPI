@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from kapi._types import Chunk, content_hash
-from kapi.store.metadata import DocFingerprint, MetadataStore
+from nrag._types import Chunk, content_hash
+from nrag.store.metadata import DocFingerprint, MetadataStore
 
 
 def _chunk(cid, doc_id="d1", text="hello world", **kw):
@@ -13,7 +13,7 @@ def test_upsert_and_hydrate_roundtrip():
     store = MetadataStore(None)
     c = _chunk("d1::0", title="T", section="A > B", metadata={"k": "v"})
     store.upsert_chunks([c])
-    from kapi._types import Hit
+    from nrag._types import Hit
 
     hits = store.hydrate([Hit(chunk_id="d1::0", score=1.0)])
     assert len(hits) == 1
@@ -22,7 +22,7 @@ def test_upsert_and_hydrate_roundtrip():
 
 
 def test_hydrate_drops_missing():
-    from kapi._types import Hit
+    from nrag._types import Hit
 
     store = MetadataStore(None)
     hits = store.hydrate([Hit(chunk_id="ghost", score=1.0)])

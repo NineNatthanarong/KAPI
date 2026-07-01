@@ -7,11 +7,11 @@ import re
 
 import pytest
 
-from kapi import Config, Document, Kapi
-from kapi._types import Chunk
-from kapi.augment.compiler import Compiler
-from kapi.results import CostGuardError
-from kapi.tokenize.text import WordTokenizer
+from nrag import Config, Document, Nrag
+from nrag._types import Chunk
+from nrag.augment.compiler import Compiler
+from nrag.results import CostGuardError
+from nrag.tokenize.text import WordTokenizer
 
 _TOK = WordTokenizer("english")
 
@@ -67,7 +67,7 @@ def _docs():
 
 # ---------------------------------------------------------------- Phase 1: enrichment
 def test_compile_enriches_indexed_text_only():
-    rag = Kapi(llm=CompilerFakeLLM(), preset="compiled")
+    rag = Nrag(llm=CompilerFakeLLM(), preset="compiled")
     rep = rag.compile(_docs())
     assert rep.num_chunks > 0 and rep.contextualized == rep.num_chunks
     chunk = rag.store.all_chunks()[0]
@@ -80,7 +80,7 @@ def test_compile_enriches_indexed_text_only():
 
 def test_compile_is_cached_by_content_hash():
     fake = CompilerFakeLLM()
-    rag = Kapi(llm=fake, preset="compiled")
+    rag = Nrag(llm=fake, preset="compiled")
     rag.compile(_docs())
     before = fake.calls
     assert before > 0
@@ -90,14 +90,14 @@ def test_compile_is_cached_by_content_hash():
 
 
 def test_compile_alias_matches_add():
-    rag = Kapi(llm=CompilerFakeLLM(), preset="compiled")
+    rag = Nrag(llm=CompilerFakeLLM(), preset="compiled")
     rep = rag.compile(_docs())
     assert rep.num_docs == 2
     rag.close()
 
 
 def test_cost_guard_blocks_expensive_compile():
-    rag = Kapi(llm=CompilerFakeLLM(), preset="compiled",
+    rag = Nrag(llm=CompilerFakeLLM(), preset="compiled",
                contextual_cost_guard_usd=1e-9)   # absurdly low -> must trip on a priced model
     with pytest.raises(CostGuardError):
         rag.compile(_docs())
@@ -134,7 +134,7 @@ def test_literal_anchoring_floor():
 
 # ---------------------------------------------------------------- two-leg retrieval
 def test_reasoning_expansion_retrieves_via_non_literal_term():
-    rag = Kapi(llm=CompilerFakeLLM(), preset="compiled")
+    rag = Nrag(llm=CompilerFakeLLM(), preset="compiled")
     rag.compile(_docs())
     # "cheapest route" appears in NEITHER raw text — only in the compiled inferential closure
     hits = rag.search("cheapest route between nodes", k=2)
@@ -144,7 +144,7 @@ def test_reasoning_expansion_retrieves_via_non_literal_term():
 
 
 def test_exact_match_still_wins_in_compiled_mode():
-    rag = Kapi(llm=CompilerFakeLLM(), preset="compiled")
+    rag = Nrag(llm=CompilerFakeLLM(), preset="compiled")
     rag.compile(_docs())
     hits = rag.search("tomato soup basil", k=2)
     assert hits and hits[0].chunk.doc_id == "soup"
@@ -153,7 +153,7 @@ def test_exact_match_still_wins_in_compiled_mode():
 
 # ---------------------------------------------------------------- degradation + persistence
 def test_no_llm_disables_compiler():
-    rag = Kapi(preset="compiled")            # no LLM
+    rag = Nrag(preset="compiled")            # no LLM
     assert not rag.config.compile_enabled and not rag.config.csc_enabled
     assert rag._legb is None
     rag.add(_docs())
@@ -163,11 +163,11 @@ def test_no_llm_disables_compiler():
 
 def test_compile_once_serve_without_llm(tmp_path):
     idx = str(tmp_path / "idx")
-    rag = Kapi(llm=CompilerFakeLLM(), preset="compiled", path=idx)
+    rag = Nrag(llm=CompilerFakeLLM(), preset="compiled", path=idx)
     rag.compile(_docs())
     rag.close()
 
-    reopened = Kapi.open(idx)                  # reopen with NO llm
+    reopened = Nrag.open(idx)                  # reopen with NO llm
     assert reopened._legb is not None and reopened._legb.vectors
     hits = reopened.search("cheapest route between nodes", k=2)
     assert hits and hits[0].chunk.doc_id == "dijkstra"   # Leg B serves model-free

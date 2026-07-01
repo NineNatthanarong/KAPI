@@ -16,7 +16,7 @@ The signal is deliberately model-free and explainable:
                      (relative) → the ranking is ambiguous.
 
 Short queries are treated as precise exact-match and are **never** escalated regardless of
-margin — that is the precision-trap guard. Thresholds live on :class:`~kapi.config.Config`.
+margin — that is the precision-trap guard. Thresholds live on :class:`~nrag.config.Config`.
 """
 
 from __future__ import annotations

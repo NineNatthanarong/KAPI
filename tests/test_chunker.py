@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from kapi._types import Document, attach_context
-from kapi.ingest.chunker import Chunker, ChunkConfig
+from nrag._types import Document, attach_context
+from nrag.ingest.chunker import Chunker, ChunkConfig
 
 
 def _doc(text, ctype="markdown"):

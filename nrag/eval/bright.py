@@ -7,12 +7,12 @@ scores **18.3** here, while BM25 with GPT-4 chain-of-thought-rewritten queries j
 beating off-the-shelf dense. The strategy: compile that reasoning to *index time* so query
 stays ~1 ms (CSC), and beat off-the-shelf dense at $0 query cost.
 
-Mirrors eval/beir.py: index a subset's documents, run its reasoning queries through a Kapi
+Mirrors eval/beir.py: index a subset's documents, run its reasoning queries through a Nrag
 instance, max-pool chunk scores to the source doc, score nDCG@10 (the BRIGHT metric).
 BRIGHT marks ``excluded_ids`` per query (e.g. the passage the query was written from); these
 are dropped from the run before scoring, exactly as the official harness does.
 
-Requires the eval extra (``datasets``):  pip install kapi[eval]
+Requires the eval extra (``datasets``):  pip install nrag[eval]
 """
 
 from __future__ import annotations
@@ -72,7 +72,7 @@ def load_bright(subset: str = "biology", *, data_repo: str = "xlangai/BRIGHT"):
     try:
         from datasets import load_dataset  # type: ignore
     except Exception as exc:  # pragma: no cover - optional dep
-        raise RuntimeError("BRIGHT eval requires: pip install kapi[eval]") from exc
+        raise RuntimeError("BRIGHT eval requires: pip install nrag[eval]") from exc
     if subset not in BRIGHT_SUBSETS:
         raise ValueError(f"unknown BRIGHT subset {subset!r}; expected one of {BRIGHT_SUBSETS}")
 
@@ -111,7 +111,7 @@ def run_bright(
     metrics=("ndcg@10", "recall@100", "mrr"),
     data_repo: str = "xlangai/BRIGHT",
 ) -> BrightReport:
-    """Build a Kapi via ``rag_factory()``, index a BRIGHT subset, evaluate its queries."""
+    """Build a Nrag via ``rag_factory()``, index a BRIGHT subset, evaluate its queries."""
     corpus, queries, qrels, excluded = load_bright(subset, data_repo=data_repo)
     rag = rag_factory()
     rag.add(list(corpus_to_documents(corpus)))

@@ -1,17 +1,17 @@
 """Phase 5 — portable, air-gapped index bundles (STRATEGY §6, §8: the Wedge).
 
 Compiled Retrieval's business wedge is a *compute-placement* split: the expensive step
-(LLM compilation) runs once — offline, or on a hosted service (:mod:`kapi.service`) — while
+(LLM compilation) runs once — offline, or on a hosted service (:mod:`nrag.service`) — while
 the *serving* index is a plain lexical artifact that needs no LLM, no network, and no vector
 DB. This module makes that artifact portable: a single gzip-tar file you ship to an on-prem /
-air-gapped box and open with ``Kapi.open(dir)`` (no ``llm``).
+air-gapped box and open with ``Nrag.open(dir)`` (no ``llm``).
 
 A bundle archives the on-disk index directory — the engine files, the ``meta.sqlite``
-metadata store, the Leg B consensus vectors (``.kapi_csc/legb.json``) and the ``kapi.json``
+metadata store, the Leg B consensus vectors (``.nrag_csc/legb.json``) and the ``nrag.json``
 manifest — minus transient locks and, by default, the offline LLM compile cache
-(``.kapi_cache/``; not needed to serve, and usually the largest part). ``include_cache=True``
-keeps it so a later re-compile on the target is free. A ``kapi_bundle.json`` manifest records
-provenance (kapi/engine/language) so import can inspect an archive before unpacking it.
+(``.nrag_cache/``; not needed to serve, and usually the largest part). ``include_cache=True``
+keeps it so a later re-compile on the target is free. A ``nrag_bundle.json`` manifest records
+provenance (nrag/engine/language) so import can inspect an archive before unpacking it.
 """
 
 from __future__ import annotations
@@ -23,10 +23,10 @@ import tarfile
 from dataclasses import dataclass
 from typing import List, Optional
 
-BUNDLE_MANIFEST = "kapi_bundle.json"
+BUNDLE_MANIFEST = "nrag_bundle.json"
 BUNDLE_VERSION = 1
 
-_CACHE_DIR = ".kapi_cache"          # offline LLM compile cache — dropped from serve bundles
+_CACHE_DIR = ".nrag_cache"          # offline LLM compile cache — dropped from serve bundles
 _EXCLUDE_SUFFIXES = (".lock", ".tmp")
 
 
@@ -40,9 +40,9 @@ class BundleInfo:
 
 
 def _index_manifest(index_dir: str) -> dict:
-    """Read the index's ``kapi.json`` (engine/language/version) for bundle provenance."""
+    """Read the index's ``nrag.json`` (engine/language/version) for bundle provenance."""
     try:
-        with open(os.path.join(index_dir, "kapi.json"), "r", encoding="utf-8") as fh:
+        with open(os.path.join(index_dir, "nrag.json"), "r", encoding="utf-8") as fh:
             return json.load(fh)
     except (OSError, ValueError):
         return {}
@@ -82,8 +82,8 @@ def export_index(index_dir: str, dest: str, *, include_cache: bool = False) -> B
 
     man = _index_manifest(index_dir)
     meta = {
-        "kapi_bundle_version": BUNDLE_VERSION,
-        "kapi_version": man.get("kapi_version"),
+        "nrag_bundle_version": BUNDLE_VERSION,
+        "nrag_version": man.get("nrag_version"),
         "engine": man.get("engine"),
         "language": man.get("language"),
         "enable_ngram": man.get("enable_ngram"),

@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "kapi"
+name = "nrag"
 version = "0.1.0"
 description = "Fast, local, zero-setup RAG with no embedding model — BM25 + the LLM you plug in."
 readme = "README.md"
@@ -51,7 +51,7 @@ eval = [
     "datasets>=2.0",
 ]
 dev = [
-    "kapi[openai,bm25s,eval]",
+    "nrag[openai,bm25s,eval]",
     "pytest>=7",
     "pytest-cov",
     "ruff",
@@ -59,19 +59,19 @@ dev = [
 ]
 
 [project.scripts]
-kapi = "kapi.cli:main"
+nrag = "nrag.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/NineNatthanarong/KAPI"
-Repository = "https://github.com/NineNatthanarong/KAPI"
-Issues = "https://github.com/NineNatthanarong/KAPI/issues"
+Homepage = "https://github.com/NineNatthanarong/NRAG"
+Repository = "https://github.com/NineNatthanarong/NRAG"
+Issues = "https://github.com/NineNatthanarong/NRAG/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["kapi"]
+packages = ["nrag"]
 
 # Keep the source distribution lean: ship the package, license, and readme only.
 [tool.hatch.build.targets.sdist]
-include = ["/kapi", "/README.md", "/LICENSE", "/pyproject.toml"]
+include = ["/nrag", "/README.md", "/LICENSE", "/pyproject.toml"]
 
 [tool.pytest.ini_options]
 markers = [

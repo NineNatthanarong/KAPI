@@ -28,9 +28,9 @@ class TCOInputs:
     tokens_per_query: int = 20
     months: int = 12
 
-    # ---- KAPI (Compiled Retrieval) — one-time compile, $0 queries ----
+    # ---- NRAG (Compiled Retrieval) — one-time compile, $0 queries ----
     consensus_k: int = 3
-    # KAPI's recommended path is a small/local compiler (§9) — effectively electricity-only.
+    # NRAG's recommended path is a small/local compiler (§9) — effectively electricity-only.
     # A frontier hosted model with prompt caching is ~$1.02/1M (§2.1); override for that case.
     compile_cost_per_1m_tokens: float = 0.10
 
@@ -45,10 +45,10 @@ class TCOInputs:
 @dataclass(frozen=True)
 class TCOResult:
     months: int
-    kapi_index_one_time: float
+    nrag_index_one_time: float
     dense_index_one_time: float
     dense_recurring_monthly: float
-    kapi_total: float
+    nrag_total: float
     dense_total: float
     savings: float
     savings_pct: float
@@ -59,11 +59,11 @@ class TCOResult:
 def compute_tco(inp: TCOInputs) -> TCOResult:
     corpus_tokens = inp.n_docs * inp.tokens_per_doc
 
-    # KAPI: one cached offline pass per chunk, sampled consensus_k times; queries are lexical.
-    kapi_index = corpus_tokens * inp.consensus_k * inp.compile_cost_per_1m_tokens / _PER_MILLION
-    kapi_query_monthly = 0.0
-    kapi_storage_monthly = 0.0                      # no resident vectors — index lives on disk
-    kapi_total = kapi_index + (kapi_query_monthly + kapi_storage_monthly) * inp.months
+    # NRAG: one cached offline pass per chunk, sampled consensus_k times; queries are lexical.
+    nrag_index = corpus_tokens * inp.consensus_k * inp.compile_cost_per_1m_tokens / _PER_MILLION
+    nrag_query_monthly = 0.0
+    nrag_storage_monthly = 0.0                      # no resident vectors — index lives on disk
+    nrag_total = nrag_index + (nrag_query_monthly + nrag_storage_monthly) * inp.months
 
     # Dense: embed the corpus once, then embed every query forever, and keep vectors in RAM.
     dense_index = corpus_tokens * inp.embed_cost_per_1m_tokens / _PER_MILLION
@@ -75,30 +75,30 @@ def compute_tco(inp: TCOInputs) -> TCOResult:
     dense_recurring = dense_query_monthly + dense_ram_monthly + inp.vectordb_flat_monthly
     dense_total = dense_index + dense_recurring * inp.months
 
-    savings = dense_total - kapi_total
+    savings = dense_total - nrag_total
     savings_pct = (savings / dense_total * 100.0) if dense_total > 0 else 0.0
 
-    # Break-even: KAPI is flat after its one-time compile; dense grows linearly. Solve for the
-    # month where dense catches up to KAPI's (higher) one-time cost.
+    # Break-even: NRAG is flat after its one-time compile; dense grows linearly. Solve for the
+    # month where dense catches up to NRAG's (higher) one-time cost.
     if dense_recurring > 0:
-        breakeven = max(0.0, (kapi_total - dense_index) / dense_recurring)
+        breakeven = max(0.0, (nrag_total - dense_index) / dense_recurring)
     else:
         breakeven = float("inf")            # no recurring cost -> dense never overtakes
 
     return TCOResult(
         months=inp.months,
-        kapi_index_one_time=kapi_index,
+        nrag_index_one_time=nrag_index,
         dense_index_one_time=dense_index,
         dense_recurring_monthly=dense_recurring,
-        kapi_total=kapi_total,
+        nrag_total=nrag_total,
         dense_total=dense_total,
         savings=savings,
         savings_pct=savings_pct,
         breakeven_months=breakeven,
         breakdown={
             "corpus_tokens": float(corpus_tokens),
-            "kapi_index_one_time": kapi_index,
-            "kapi_query_monthly": kapi_query_monthly,
+            "nrag_index_one_time": nrag_index,
+            "nrag_query_monthly": nrag_query_monthly,
             "dense_index_one_time": dense_index,
             "dense_query_monthly": dense_query_monthly,
             "dense_ram_gb": ram_gb,
@@ -112,13 +112,13 @@ def format_report(inp: TCOInputs, res: TCOResult) -> str:
     be = ("never" if res.breakeven_months == float("inf")
           else f"~{res.breakeven_months:.1f} months")
     return "\n".join([
-        f"KAPI vs dense+vectorDB TCO over {res.months} months",
+        f"NRAG vs dense+vectorDB TCO over {res.months} months",
         f"  corpus: {inp.n_docs:,} docs x {inp.tokens_per_doc} tok | "
         f"traffic: {inp.queries_per_month:,} queries/mo x {inp.tokens_per_query} tok",
         "  ---------------------------------------------------------------",
-        f"  KAPI   one-time compile : ${res.kapi_index_one_time:,.2f}",
-        f"  KAPI   per-query cost    : $0.00   (lexical, no model, no vector RAM)",
-        f"  KAPI   {res.months}-month total   : ${res.kapi_total:,.2f}",
+        f"  NRAG   one-time compile : ${res.nrag_index_one_time:,.2f}",
+        f"  NRAG   per-query cost    : $0.00   (lexical, no model, no vector RAM)",
+        f"  NRAG   {res.months}-month total   : ${res.nrag_total:,.2f}",
         "  ---------------------------------------------------------------",
         f"  dense  one-time embed    : ${res.dense_index_one_time:,.2f}",
         f"  dense  recurring/month   : ${res.dense_recurring_monthly:,.2f}"
@@ -127,6 +127,6 @@ def format_report(inp: TCOInputs, res: TCOResult) -> str:
         f"{res.breakdown['dense_ram_gb']:.1f} GB)",
         f"  dense  {res.months}-month total   : ${res.dense_total:,.2f}",
         "  ---------------------------------------------------------------",
-        f"  savings with KAPI        : ${res.savings:,.2f}  ({res.savings_pct:.1f}%)",
-        f"  dense overtakes KAPI at  : {be}",
+        f"  savings with NRAG        : ${res.savings:,.2f}  ({res.savings_pct:.1f}%)",
+        f"  dense overtakes NRAG at  : {be}",
     ])

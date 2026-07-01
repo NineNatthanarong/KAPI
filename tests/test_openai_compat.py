@@ -4,7 +4,7 @@ import json
 
 import httpx
 
-from kapi.llm import OpenAICompatLLM
+from nrag.llm import OpenAICompatLLM
 
 
 def _mock_llm(handler):

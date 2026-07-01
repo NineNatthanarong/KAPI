@@ -1,7 +1,7 @@
-"""Configuration and presets for Kapi.
+"""Configuration and presets for Nrag.
 
 A single frozen ``Config`` is the source of truth for all behavior. Presets are
-factory classmethods; any field is overridable via kwargs to ``Kapi(...)``. The
+factory classmethods; any field is overridable via kwargs to ``Nrag(...)``. The
 default preset is ``quality`` (LLM enhancers ON) per the product brief; ``fast``
 collapses to pure-lexical; ``for_no_llm`` is applied automatically when no LLM is
 supplied so "no LLM still works" is guaranteed by construction.

@@ -1,4 +1,4 @@
-<svg viewBox="0 0 1200 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="KAPI vs dense+vectorDB cumulative cost over 12 months">
+<svg viewBox="0 0 1200 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NRAG vs dense+vectorDB cumulative cost over 12 months">
   <defs>
     <style>
       text{font-family:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif}
@@ -9,7 +9,7 @@
   <rect x="0" y="0" width="1200" height="540" rx="16" fill="#ffffff" stroke="#e2e8f0"/>
 
   <text x="32" y="46" font-size="23" font-weight="800" fill="#0f172a">12-month cost of ownership</text>
-  <text x="32" y="72" font-size="15" fill="#475569">Cumulative $ · 1M docs · 1M queries/month · via <tspan font-family="monospace" fill="#0f172a">kapi tco</tspan>. Kapi pays once at compile; dense pays every query, forever.</text>
+  <text x="32" y="72" font-size="15" fill="#475569">Cumulative $ · 1M docs · 1M queries/month · via <tspan font-family="monospace" fill="#0f172a">nrag tco</tspan>. Nrag pays once at compile; dense pays every query, forever.</text>
 
   <!-- y grid + labels ($0..$400 over plot y=450..115) -->
   <g stroke="#eef2f7" stroke-width="1">
@@ -45,11 +45,11 @@
   <text x="678" y="158" font-size="15" font-weight="700" fill="#dc2626">dense + vector DB</text>
   <text x="678" y="178" font-size="13" fill="#ef4444">embed every query + resident RAM</text>
 
-  <!-- kapi: one-time compile, then flat ($0/query) -->
+  <!-- nrag: one-time compile, then flat ($0/query) -->
   <line x1="100" y1="324" x2="1110" y2="324" stroke="#7c3aed" stroke-width="3.5" stroke-linecap="round"/>
   <circle cx="100" cy="324" r="5" fill="#7c3aed"/>
   <circle cx="1110" cy="324" r="5" fill="#7c3aed"/>
-  <text x="112" y="314" font-size="15" font-weight="700" fill="#6d28d9">Kapi — $150 once, then $0 / query</text>
+  <text x="112" y="314" font-size="15" font-weight="700" fill="#6d28d9">Nrag — $150 once, then $0 / query</text>
   <text x="1100" y="316" font-size="14" font-weight="800" fill="#6d28d9" text-anchor="end">$150</text>
 
   <!-- break-even marker -->
@@ -58,6 +58,6 @@
   <text x="492" y="344" font-size="13" font-weight="600" fill="#334155">break-even ≈ 4.5 months</text>
 
   <!-- savings callout, inside the green band -->
-  <text x="812" y="292" font-size="16" font-weight="800" fill="#15803d">Kapi saves ≈ $231 (60%)</text>
+  <text x="812" y="292" font-size="16" font-weight="800" fill="#15803d">Nrag saves ≈ $231 (60%)</text>
   <text x="812" y="312" font-size="13" fill="#16a34a">and the gap widens with traffic</text>
 </svg>

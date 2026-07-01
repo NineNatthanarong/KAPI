@@ -1,8 +1,8 @@
-"""Phase 4 — drop-in retriever adapters (STRATEGY §6): make trying KAPI one line, not a
+"""Phase 4 — drop-in retriever adapters (STRATEGY §6): make trying NRAG one line, not a
 migration. The heavyweight frameworks (LangChain, LlamaIndex) are *optional* deps — the
-adapters import them lazily and raise a clear message if absent, so core KAPI stays lean.
+adapters import them lazily and raise a clear message if absent, so core NRAG stays lean.
 
-The framework-agnostic part — turning KAPI :class:`~kapi._types.Hit`\\s into plain records —
+The framework-agnostic part — turning NRAG :class:`~nrag._types.Hit`\\s into plain records —
 lives here as :func:`hits_to_records` and is what the per-framework shims map from.
 """
 
@@ -27,18 +27,18 @@ def hits_to_records(hits: List[Hit]) -> List[Dict]:
     return records
 
 
-def to_langchain_retriever(kapi, *, k=None):
-    """Wrap a :class:`~kapi.Kapi` as a LangChain ``BaseRetriever``. Needs ``langchain-core``."""
+def to_langchain_retriever(nrag, *, k=None):
+    """Wrap a :class:`~nrag.Nrag` as a LangChain ``BaseRetriever``. Needs ``langchain-core``."""
     from .langchain import to_langchain_retriever as _impl
 
-    return _impl(kapi, k=k)
+    return _impl(nrag, k=k)
 
 
-def to_llamaindex_retriever(kapi, *, k=None):
-    """Wrap a :class:`~kapi.Kapi` as a LlamaIndex ``BaseRetriever``. Needs ``llama-index-core``."""
+def to_llamaindex_retriever(nrag, *, k=None):
+    """Wrap a :class:`~nrag.Nrag` as a LlamaIndex ``BaseRetriever``. Needs ``llama-index-core``."""
     from .llamaindex import to_llamaindex_retriever as _impl
 
-    return _impl(kapi, k=k)
+    return _impl(nrag, k=k)
 
 
 __all__ = ["hits_to_records", "to_langchain_retriever", "to_llamaindex_retriever"]

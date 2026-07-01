@@ -1,5 +1,5 @@
 {
-  "KAPI-fast (lexical, no embeddings)": {
+  "NRAG-fast (lexical, no embeddings)": {
     "ndcg@10": 0.6877676502997403,
     "recall@10": 0.8164444444444444,
     "recall@100": 0.8896666666666666,
@@ -53,7 +53,7 @@
     "recall@100": 0.8852222222222222,
     "mrr": 0.6522786842019077
   },
-  "KAPI + query expansion": {
+  "NRAG + query expansion": {
     "ndcg@10": 0.6728062305418825,
     "recall@10": 0.8121666666666666,
     "recall@100": 0.8963333333333332,
@@ -101,49 +101,49 @@
     "recall@100": 0.8890000000000001,
     "mrr": 0.6464421134514948
   },
-  "KAPI + RM3 PRF (R=3,M=8,a=3)": {
+  "NRAG + RM3 PRF (R=3,M=8,a=3)": {
     "ndcg@10": 0.5676187706637612,
     "recall@10": 0.8183888888888888,
     "recall@100": 0.9123333333333333,
     "mrr": 0.49409406157257574
   },
-  "KAPI + LLM rerank (base, top-20)": {
+  "NRAG + LLM rerank (base, top-20)": {
     "ndcg@10": 0.7501462425301764,
     "recall@10": 0.8488888888888888,
     "recall@100": 0.8655555555555554,
     "mrr": 0.7252339604839604
   },
-  "KAPI + LLM rerank (base, top-30)": {
+  "NRAG + LLM rerank (base, top-30)": {
     "ndcg@10": 0.748667707201549,
     "recall@10": 0.8532222222222222,
     "recall@100": 0.8856666666666668,
     "mrr": 0.7242056644572628
   },
-  "KAPI + doc2query (ngram_w=0.0)": {
+  "NRAG + doc2query (ngram_w=0.0)": {
     "ndcg@10": 0.7076391024781631,
     "recall@10": 0.8306111111111111,
     "recall@100": 0.9008888888888889,
     "mrr": 0.6798604265291216
   },
-  "KAPI + doc2query (ngram_w=0.2)": {
+  "NRAG + doc2query (ngram_w=0.2)": {
     "ndcg@10": 0.7204355048051272,
     "recall@10": 0.8407222222222223,
     "recall@100": 0.9046666666666666,
     "mrr": 0.6910773342030837
   },
-  "KAPI + doc2query (ngram_w=0.3)": {
+  "NRAG + doc2query (ngram_w=0.3)": {
     "ndcg@10": 0.7193113939986252,
     "recall@10": 0.8340555555555556,
     "recall@100": 0.9129999999999999,
     "mrr": 0.6934985079134016
   },
-  "KAPI + doc2query + LLM rerank (top-20)": {
+  "NRAG + doc2query + LLM rerank (top-20)": {
     "ndcg@10": 0.742016432312051,
     "recall@10": 0.8498888888888888,
     "recall@100": 0.8798888888888888,
     "mrr": 0.7164747012247012
   },
-  "KAPI + ensemble rerank (base, top-20, 3x)": {
+  "NRAG + ensemble rerank (base, top-20, 3x)": {
     "ndcg@10": 0.6603839527602582,
     "recall@10": 0.8319444444444444,
     "recall@100": 0.8655555555555554,
@@ -161,31 +161,31 @@
     "recall@100": 0.9216666666666666,
     "mrr": 0.737878343878344
   },
-  "KAPI doc2query DUAL-INDEX fusion (wA=1,wB=3)": {
+  "NRAG doc2query DUAL-INDEX fusion (wA=1,wB=3)": {
     "ndcg@10": 0.6663499121982437,
     "recall@10": 0.8031111111111111,
     "recall@100": 0.9386666666666668,
     "mrr": 0.6363877306430412
   },
-  "KAPI + doc2query x2 (ngram_w=0.1)": {
+  "NRAG + doc2query x2 (ngram_w=0.1)": {
     "ndcg@10": 0.7201084057156677,
     "recall@10": 0.8504444444444446,
     "recall@100": 0.9118888888888889,
     "mrr": 0.687022026372712
   },
-  "KAPI + doc2query x2 (ngram_w=0.2)": {
+  "NRAG + doc2query x2 (ngram_w=0.2)": {
     "ndcg@10": 0.7238259732395395,
     "recall@10": 0.8462777777777778,
     "recall@100": 0.9163333333333332,
     "mrr": 0.69487183461608
   },
-  "KAPI + doc2query x2 (ngram_w=0.3)": {
+  "NRAG + doc2query x2 (ngram_w=0.3)": {
     "ndcg@10": 0.7255404976580859,
     "recall@10": 0.8529444444444445,
     "recall@100": 0.9196666666666666,
     "mrr": 0.6948805441944631
   },
-  "KAPI doc2query x2 (ngram=0.3,title=0.5)": {
+  "NRAG doc2query x2 (ngram=0.3,title=0.5)": {
     "ndcg@10": 0.7290798718006521,
     "recall@10": 0.8398888888888889,
     "recall@100": 0.9163333333333332,

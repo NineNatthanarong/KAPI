@@ -86,9 +86,9 @@ def main():
     tie = abs(a_ndcg - q4b) <= 0.003
 
     M = []
-    M.append("# KAPI vs dense embeddings — BEIR scifact\n")
+    M.append("# NRAG vs dense embeddings — BEIR scifact\n")
     M.append("Can a retriever with **no embedding model** compete with dense embedding models? "
-             "KAPI (BM25 + char-trigrams + optional LLM index-time enrichment + optional LLM "
+             "NRAG (BM25 + char-trigrams + optional LLM index-time enrichment + optional LLM "
              "reranking — all via the *plugged-in* LLM, no embeddings, no vector DB) vs four dense "
              "embedding models, on **BEIR scifact** (claim verification).\n")
     M.append("## Honest headline (read by cost tier)\n")
@@ -104,16 +104,16 @@ def main():
              f"qwen3-4b+rerank leads ({best([(k,v) for k,v in B_dense]) [1]['ndcg@10']:.4f}); "
              f"best no-embedding = *{b_ne[0]}* ({b_ne[1]['ndcg@10']:.4f}). "
              f"Reranking does **not** erase dense's higher candidate recall.")
-    M.append("- **Takeaway:** with **no embedding model, no GPU, no vector DB**, KAPI **matches "
+    M.append("- **Takeaway:** with **no embedding model, no GPU, no vector DB**, NRAG **matches "
              "qwen3-embedding-4b on this task** (tie on nDCG@10, ahead on MRR) at a fraction of the "
              "query-time cost, and clearly beats mid-tier embedders (text-embedding-3-small, bge-m3). "
-             "It trails only the 8B embedder. (KAPI+rerank's 0.75 over *bare* qwen3-4b was a cost-tier "
+             "It trails only the 8B embedder. (NRAG+rerank's 0.75 over *bare* qwen3-4b was a cost-tier "
              "mismatch — reranking is an extra LLM call/query and lifts dense more.)\n")
 
     M.append("## Setup\n")
     M.append("- **Dataset:** BEIR `scifact` — 5,183 abstracts, 300 test claims, 339 judgments "
              "(~1.13 relevant/query). Doc-level scoring (chunk→doc max-pool).")
-    M.append("- **Metrics:** nDCG@10 / Recall@10 / Recall@100 / MRR (`kapi.eval.ir_metrics`).")
+    M.append("- **Metrics:** nDCG@10 / Recall@10 / Recall@100 / MRR (`nrag.eval.ir_metrics`).")
     M.append("- **Dense:** embeddings via OpenRouter `/embeddings`; cosine over L2-normalized vectors.")
     M.append("- **Reranker / doc2query LLM:** `deepseek/deepseek-v4-flash` via OpenRouter. **Date:** 2026-06-09.\n")
 
@@ -131,7 +131,7 @@ def main():
              "time, the claims each paper answers; queries stay pure BM25. This is the best no-embedding "
              "*retrieval-only* result and the only one that beats text-embedding-3-small for free at query time.")
     M.append("- **Reranking is the biggest single jump but not free** (+~0.05 nDCG@10, one LLM call/query) "
-             "— and it lifts dense pipelines *more* (better candidate recall), so it doesn't close the gap for KAPI.")
+             "— and it lifts dense pipelines *more* (better candidate recall), so it doesn't close the gap for NRAG.")
     M.append("- **Self-consistency ensemble reranking backfired** (0.66): shuffling candidate order destroys "
              "the BM25 ordering prior the reranker relies on. Keep the first-stage order.")
     M.append("- **Char-trigrams help** (+0.014 over plain BM25); the independent `bm25s` engine reproduces "
@@ -141,7 +141,7 @@ def main():
     M.append("```\npython scratch/ablation.py                      # lexical ablations\n"
              "python scratch/eval_all.py te3small bgem3 qwen4b qwen8b   # dense baselines\n"
              "python scratch/doc2query.py all                 # anticipatory indexing\n"
-             "python scratch/exp_rerank2.py base 20           # KAPI + rerank\n"
+             "python scratch/exp_rerank2.py base 20           # NRAG + rerank\n"
              "python scratch/exp_dense_rerank.py              # dense + same rerank (fair tier B)\n"
              "python benchmarks/consolidate.py                # regenerate this report\n```")
 

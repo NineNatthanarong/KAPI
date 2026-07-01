@@ -1,4 +1,4 @@
-"""The public ``Kapi`` facade — orchestrates lexical retrieval + optional LLM augmentation.
+"""The public ``Nrag`` facade — orchestrates lexical retrieval + optional LLM augmentation.
 
 Design rules:
   * Pure-lexical retrieval ALWAYS works; LLM features are pure add-ons. When ``llm`` is
@@ -25,10 +25,10 @@ from .retrieve import fuse, multisignal, router
 from .store.metadata import DocFingerprint, MetadataStore
 
 Source = Union[str, Document, Iterable[Union[str, Document]]]
-_MANIFEST = "kapi.json"
+_MANIFEST = "nrag.json"
 
 
-class Kapi:
+class Nrag:
     def __init__(
         self,
         llm=None,
@@ -76,7 +76,7 @@ class Kapi:
 
     # ------------------------------------------------------------------ open
     @classmethod
-    def open(cls, path: str, llm=None, *, preset: str = "quality", **overrides) -> "Kapi":
+    def open(cls, path: str, llm=None, *, preset: str = "quality", **overrides) -> "Nrag":
         return cls(llm=llm, preset=preset, path=path, **overrides)
 
     # ------------------------------------------------------------------ ingest
@@ -396,14 +396,14 @@ class Kapi:
 
     def _legb_store_exists(self) -> bool:
         p = self.config.path
-        return bool(p) and os.path.exists(os.path.join(p, ".kapi_csc", "legb.json"))
+        return bool(p) and os.path.exists(os.path.join(p, ".nrag_csc", "legb.json"))
 
     def _write_manifest(self, path: str) -> None:
         mpath = os.path.join(path, _MANIFEST)
         if os.path.exists(mpath):
             return
         data = {
-            "kapi_version": "0.1.0",
+            "nrag_version": "0.1.0",
             "engine": self.config.engine,
             "language": self.config.language,
             "enable_ngram": self.config.enable_ngram,
@@ -419,11 +419,11 @@ class Kapi:
         """Export this on-disk index as a portable, air-gapped serving bundle (STRATEGY §8).
 
         The index must be persisted (``path`` set). Pending mutations are flushed, then the
-        directory is archived into ``dest`` (a ``.kapi.tgz``). The bundle opens anywhere with
+        directory is archived into ``dest`` (a ``.nrag.tgz``). The bundle opens anywhere with
         :meth:`import_bundle` / :meth:`open` and serves model-free — no LLM, no network.
         """
         if not self.config.path:
-            raise ValueError("in-memory index has nothing to export; construct Kapi(path=...)")
+            raise ValueError("in-memory index has nothing to export; construct Nrag(path=...)")
         self.engine.commit()
         self.store.commit()
         if self._legb is not None:
@@ -434,7 +434,7 @@ class Kapi:
 
     @classmethod
     def import_bundle(cls, bundle: str, dest: str, *, llm=None, overwrite: bool = False,
-                      **open_overrides) -> "Kapi":
+                      **open_overrides) -> "Nrag":
         """Unpack a serving bundle into ``dest`` and open it (model-free by default)."""
         from .portable import import_index
 
@@ -459,7 +459,7 @@ class Kapi:
             finally:
                 self.store.close()
 
-    def __enter__(self) -> "Kapi":
+    def __enter__(self) -> "Nrag":
         return self
 
     def __exit__(self, *exc) -> None:

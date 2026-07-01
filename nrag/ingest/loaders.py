@@ -110,7 +110,7 @@ class PDFTextLoader:
             from pypdf import PdfReader  # type: ignore
         except Exception as exc:  # pragma: no cover - optional dep
             raise RuntimeError(
-                "PDF support requires the 'pdf' extra: pip install kapi[pdf]"
+                "PDF support requires the 'pdf' extra: pip install nrag[pdf]"
             ) from exc
         reader = PdfReader(path)
         text = "\n\n".join((page.extract_text() or "") for page in reader.pages)

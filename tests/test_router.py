@@ -3,9 +3,9 @@ results, and never on short (precise) queries (the §2.4 precision-trap guard)."
 
 from __future__ import annotations
 
-from kapi import Config, Kapi
-from kapi._types import Hit
-from kapi.retrieve.router import assess
+from nrag import Config, Nrag
+from nrag._types import Hit
+from nrag.retrieve.router import assess
 
 
 def _h(score: float) -> Hit:
@@ -61,17 +61,17 @@ _DOCS = [
 ]
 
 
-def _router_kapi(llm):
+def _router_nrag(llm):
     # fast preset = no index-time LLM work; force the router on so only query-time calls count.
     # ngram off so char-trigrams can't substring-match coined tokens (keeps "no overlap" real).
-    rag = Kapi(llm=llm, preset="fast", router_enabled=True, enable_ngram=False)
+    rag = Nrag(llm=llm, preset="fast", router_enabled=True, enable_ngram=False)
     rag.add_texts(_DOCS)
     return rag
 
 
 def test_easy_query_does_not_escalate_no_llm_call():
     llm = _CountingLLM()
-    rag = _router_kapi(llm)
+    rag = _router_nrag(llm)
     hits = rag.search("refund", k=3)          # short, precise, strong lexical hit
     assert hits and "refund" in hits[0].text
     assert rag.last_route is not None and not rag.last_route.escalate
@@ -81,7 +81,7 @@ def test_easy_query_does_not_escalate_no_llm_call():
 
 def test_hard_query_escalates_and_recovers():
     llm = _CountingLLM()
-    rag = _router_kapi(llm)
+    rag = _router_nrag(llm)
     # A long query whose (deliberately coined) tokens overlap NO document -> first pass is
     # empty -> the router escalates; expansion then bridges to the real vocabulary.
     hits = rag.search("zqxrefundless zqxmoneyback zqxregretful zqxpurchasing zqxcashback", k=3)
@@ -93,7 +93,7 @@ def test_hard_query_escalates_and_recovers():
 
 
 def test_no_llm_disables_router():
-    rag = Kapi(preset="compiled")               # compiled enables router, but no LLM
+    rag = Nrag(preset="compiled")               # compiled enables router, but no LLM
     assert rag.config.router_enabled is False   # for_no_llm() turned it off
     rag.add_texts(_DOCS)
     assert rag.search("refund", k=2)            # pure lexical still works

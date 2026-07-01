@@ -3,8 +3,8 @@ excluded-id dropping, chunk->doc max-pooling, and the report format (no network/
 
 from __future__ import annotations
 
-from kapi import Kapi
-from kapi.eval import bright
+from nrag import Nrag
+from nrag.eval import bright
 
 
 def _fake_loader(subset="biology", *, data_repo="xlangai/BRIGHT"):
@@ -22,7 +22,7 @@ def _fake_loader(subset="biology", *, data_repo="xlangai/BRIGHT"):
 
 def test_run_bright_drops_excluded_and_scores(monkeypatch):
     monkeypatch.setattr(bright, "load_bright", _fake_loader)
-    report = bright.run_bright(lambda: Kapi(), "biology")    # pure-lexical, no LLM
+    report = bright.run_bright(lambda: Nrag(), "biology")    # pure-lexical, no LLM
     assert report.n_docs == 3 and report.n_queries == 1
     # 'src' out-matches 'd1' on raw term frequency but is excluded -> the relevant doc d1
     # is the top scored survivor -> perfect nDCG@10.
@@ -31,7 +31,7 @@ def test_run_bright_drops_excluded_and_scores(monkeypatch):
 
 def test_bright_report_str(monkeypatch):
     monkeypatch.setattr(bright, "load_bright", _fake_loader)
-    report = bright.run_bright(lambda: Kapi(), "biology")
+    report = bright.run_bright(lambda: Nrag(), "biology")
     s = str(report)
     assert "BRIGHT[biology]" in s
     assert "off-the-shelf dense" in s and "LATTICE" in s

@@ -2,7 +2,7 @@
 
 Modes:
   smoke      — compile a few docs with the real LLM; print a bundle + term weights (cheap)
-  baseline   — pure-lexical Kapi, no LLM (free)
+  baseline   — pure-lexical Nrag, no LLM (free)
   compiled   — Compiled Retrieval; --csc on/off, --k consensus samples
 
 Reads the LLM key from ``OPENROUTER_API_KEY``. Example:
@@ -16,8 +16,8 @@ import argparse
 import os
 import time
 
-from kapi import Document, Kapi
-from kapi.eval.ir_metrics import evaluate_run
+from nrag import Document, Nrag
+from nrag.eval.ir_metrics import evaluate_run
 
 MODEL = "deepseek/deepseek-v4-flash"
 BASE_URL = "https://openrouter.ai/api/v1"
@@ -28,7 +28,7 @@ def _llm():
     key = os.environ.get("OPENROUTER_API_KEY")
     if not key:
         raise SystemExit("set OPENROUTER_API_KEY")
-    from kapi.llm import OpenAICompatLLM
+    from nrag.llm import OpenAICompatLLM
 
     return OpenAICompatLLM(base_url=BASE_URL, model=MODEL, api_key=key)
 
@@ -74,9 +74,9 @@ def evaluate(rag, queries, qrels, k=100):
 
 def build(mode, args):
     if mode == "baseline":
-        return Kapi(engine="tantivy", path=args.index)
+        return Nrag(engine="tantivy", path=args.index)
     over = dict(consensus_k=args.k, compile_concurrency=args.concurrency)
-    rag = Kapi(llm=_llm(), preset="compiled", engine="tantivy", path=args.index, **over)
+    rag = Nrag(llm=_llm(), preset="compiled", engine="tantivy", path=args.index, **over)
     if args.csc == "off":
         rag._legb = None            # Leg A (enriched index) only — no Leg B fusion, no recompile
     return rag
@@ -95,7 +95,7 @@ def main():
     if args.mode == "smoke":
         docs, _q, _r = load_scifact()
         sub = dict(list(docs.items())[: args.smoke_docs])
-        rag = Kapi(llm=_llm(), preset="compiled", consensus_k=args.k, compile_concurrency=6)
+        rag = Nrag(llm=_llm(), preset="compiled", consensus_k=args.k, compile_concurrency=6)
         t = time.time()
         rag.compile(list(to_documents(sub)))
         cid = rag.store.all_chunks()[0].chunk_id
