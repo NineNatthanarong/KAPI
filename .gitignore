@@ -22,6 +22,7 @@ datasets/
 *.sqlite
 .arag_cache/
 index/
+idx_*/
 /scratch/
 
 # OS / editor

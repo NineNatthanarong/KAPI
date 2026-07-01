@@ -9,13 +9,25 @@ description = "Fast, local, zero-setup RAG with no embedding model — BM25 + th
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-authors = [{ name = "Kapi" }]
-keywords = ["rag", "bm25", "retrieval", "search", "tantivy", "llm", "local"]
+authors = [{ name = "NineNatthanarong" }]
+keywords = [
+    "rag", "bm25", "retrieval", "search", "tantivy", "llm", "local",
+    "embedding-free", "sparse-retrieval", "information-retrieval",
+]
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Topic :: Text Processing :: Indexing",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Text Processing :: Indexing",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
 ]
 # Core stays featherweight: a fast persistent engine, a pure-Python stemmer, and an
 # HTTP client so the local-LLM path works on the core install alone. No models, ever.
@@ -50,10 +62,16 @@ dev = [
 kapi = "kapi.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/NineNatthanarong/Kapi"
+Homepage = "https://github.com/NineNatthanarong/KAPI"
+Repository = "https://github.com/NineNatthanarong/KAPI"
+Issues = "https://github.com/NineNatthanarong/KAPI/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["kapi"]
+
+# Keep the source distribution lean: ship the package, license, and readme only.
+[tool.hatch.build.targets.sdist]
+include = ["/kapi", "/README.md", "/LICENSE", "/pyproject.toml"]
 
 [tool.pytest.ini_options]
 markers = [
