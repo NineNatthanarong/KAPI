@@ -1,60 +1,74 @@
-<svg viewBox="0 0 1200 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NRAG — Compiled Retrieval, embedding-free RAG">
+<svg viewBox="0 0 1200 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NRAG: Compiled Retrieval, embedding-free RAG">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0b1020"/>
-      <stop offset="0.55" stop-color="#2e1065"/>
-      <stop offset="1" stop-color="#4c1d95"/>
+      <stop offset="0" stop-color="#0a1022"/>
+      <stop offset="0.55" stop-color="#0e1732"/>
+      <stop offset="1" stop-color="#0b1120"/>
     </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#a78bfa"/>
+    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7dd3fc"/>
       <stop offset="1" stop-color="#22d3ee"/>
     </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.13"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0 H0 V40" fill="none" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
+    </pattern>
     <style>
       text{font-family:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif}
-      .chip{fill:#e9d5ff;font-size:15px;font-weight:600}
+      .chip{fill:#e2e8f0;font-size:14.5px;font-weight:600}
     </style>
   </defs>
 
-  <rect x="0" y="0" width="1200" height="300" rx="20" fill="url(#bg)"/>
+  <!-- full-bleed background (square corners = crop-safe, no white triangles) -->
+  <rect x="0" y="0" width="1200" height="320" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="320" fill="url(#grid)"/>
 
-  <!-- rising-bars motif (BM25 / compiled closure) -->
-  <g opacity="0.16" fill="#a78bfa">
-    <rect x="835" y="205" width="34" height="45"  rx="4"/>
-    <rect x="879" y="180" width="34" height="70"  rx="4"/>
-    <rect x="923" y="150" width="34" height="100" rx="4"/>
-    <rect x="967" y="120" width="34" height="130" rx="4"/>
-    <rect x="1011" y="86" width="34" height="164" rx="4"/>
-    <rect x="1055" y="60" width="34" height="190" rx="4"/>
-  </g>
-  <!-- compile arrow: once -> served forever -->
-  <g opacity="0.5" stroke="url(#accent)" stroke-width="3" fill="none">
-    <path d="M812 250 q60 -30 120 0" stroke-dasharray="2 7" stroke-linecap="round"/>
-  </g>
+  <!-- frosted glass slab: the content panel -->
+  <rect x="32" y="34" width="1136" height="252" rx="22" fill="#ffffff" fill-opacity="0.035"/>
+  <rect x="32" y="34" width="1136" height="96" rx="22" fill="url(#sheen)"/>
+  <rect x="32" y="34" width="1136" height="252" rx="22" fill="none" stroke="#ffffff" stroke-opacity="0.10"/>
 
-  <text x="70" y="122" font-size="92" font-weight="800" fill="#ffffff" letter-spacing="3">NRAG</text>
-  <text x="76" y="162" font-size="26" font-weight="700" fill="url(#accent)" letter-spacing="4">COMPILED RETRIEVAL</text>
-  <text x="76" y="197" font-size="18.5" fill="#c7d2fe">Embedding-free RAG — the LLM compiles your docs once; queries stay pure BM25.</text>
+  <!-- left accent bar -->
+  <rect x="64" y="94" width="6" height="122" rx="3" fill="url(#cyan)"/>
 
-  <!-- capability chips -->
+  <!-- wordmark -->
+  <text x="92" y="146" font-size="80" font-weight="800" fill="#f8fafc" letter-spacing="1">NRAG</text>
+  <text x="95" y="182" font-size="20" font-weight="600" fill="#7dd3fc" letter-spacing="7">COMPILED RETRIEVAL</text>
+  <text x="95" y="216" font-size="16" fill="#9aa7bd">Embedding-free RAG. The LLM compiles your docs once; queries stay pure BM25.</text>
+
+  <!-- glass capability chips -->
   <g>
-    <rect x="76"  y="222" width="176" height="34" rx="17" fill="#ffffff" opacity="0.07"/>
-    <rect x="76"  y="222" width="176" height="34" rx="17" fill="none" stroke="#a78bfa" stroke-opacity="0.55"/>
-    <text class="chip" x="164" y="244" text-anchor="middle">no embedding model</text>
+    <rect x="94"  y="242" width="178" height="32" rx="16" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-opacity="0.14"/>
+    <text class="chip" x="183" y="263" text-anchor="middle">no embedding model</text>
 
-    <rect x="264" y="222" width="130" height="34" rx="17" fill="#ffffff" opacity="0.07"/>
-    <rect x="264" y="222" width="130" height="34" rx="17" fill="none" stroke="#a78bfa" stroke-opacity="0.55"/>
-    <text class="chip" x="329" y="244" text-anchor="middle">no vector DB</text>
+    <rect x="284" y="242" width="126" height="32" rx="16" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-opacity="0.14"/>
+    <text class="chip" x="347" y="263" text-anchor="middle">no vector DB</text>
 
-    <rect x="406" y="222" width="104" height="34" rx="17" fill="#ffffff" opacity="0.07"/>
-    <rect x="406" y="222" width="104" height="34" rx="17" fill="none" stroke="#a78bfa" stroke-opacity="0.55"/>
-    <text class="chip" x="458" y="244" text-anchor="middle">no GPU</text>
+    <rect x="422" y="242" width="96"  height="32" rx="16" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-opacity="0.14"/>
+    <text class="chip" x="470" y="263" text-anchor="middle">no GPU</text>
 
-    <rect x="522" y="222" width="120" height="34" rx="17" fill="#22d3ee" opacity="0.14"/>
-    <rect x="522" y="222" width="120" height="34" rx="17" fill="none" stroke="#22d3ee" stroke-opacity="0.7"/>
-    <text class="chip" x="582" y="244" text-anchor="middle" fill="#a5f3fc">$0 / query</text>
+    <rect x="530" y="242" width="112" height="32" rx="16" fill="#22d3ee" fill-opacity="0.10" stroke="#38bdf8" stroke-opacity="0.6"/>
+    <text class="chip" x="586" y="263" text-anchor="middle" fill="#a5f3fc">$0 / query</text>
 
-    <rect x="654" y="222" width="96"  height="34" rx="17" fill="#22d3ee" opacity="0.14"/>
-    <rect x="654" y="222" width="96"  height="34" rx="17" fill="none" stroke="#22d3ee" stroke-opacity="0.7"/>
-    <text class="chip" x="702" y="244" text-anchor="middle" fill="#a5f3fc">~1 ms</text>
+    <rect x="654" y="242" width="86"  height="32" rx="16" fill="#22d3ee" fill-opacity="0.10" stroke="#38bdf8" stroke-opacity="0.6"/>
+    <text class="chip" x="697" y="263" text-anchor="middle" fill="#a5f3fc">~1 ms</text>
+  </g>
+
+  <!-- right: a frosted "compiled index" card -->
+  <g>
+    <rect x="932" y="92" width="196" height="150" rx="16" fill="#ffffff" fill-opacity="0.03" stroke="#ffffff" stroke-opacity="0.06"/>
+    <rect x="908" y="78" width="196" height="150" rx="16" fill="#ffffff" fill-opacity="0.06"/>
+    <rect x="908" y="78" width="196" height="54"  rx="16" fill="url(#sheen)"/>
+    <rect x="908" y="78" width="196" height="150" rx="16" fill="none" stroke="#ffffff" stroke-opacity="0.16"/>
+    <circle cx="934" cy="106" r="5" fill="url(#cyan)"/>
+    <rect x="952" y="101" width="70" height="9" rx="4" fill="#ffffff" fill-opacity="0.16"/>
+    <rect x="928" y="130" width="150" height="8" rx="4" fill="#ffffff" fill-opacity="0.13"/>
+    <rect x="928" y="150" width="120" height="8" rx="4" fill="#ffffff" fill-opacity="0.13"/>
+    <rect x="928" y="170" width="140" height="8" rx="4" fill="#ffffff" fill-opacity="0.13"/>
+    <rect x="928" y="190" width="104" height="8" rx="4" fill="url(#cyan)" fill-opacity="0.9"/>
+    <rect x="928" y="210" width="128" height="8" rx="4" fill="#ffffff" fill-opacity="0.13"/>
   </g>
 </svg>

@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/banner.png" alt="NRAG — Compiled Retrieval, embedding-free RAG" width="100%">
+<img src="assets/banner.png" alt="NRAG: Compiled Retrieval, embedding-free RAG" width="100%">
 
 <br/>
 
@@ -11,7 +11,7 @@
 ![query cost](https://img.shields.io/badge/query_cost-%240-06b6d4)
 ![tests](https://img.shields.io/badge/tests-87_passing-22c55e)
 
-**Fast, local, zero-setup RAG with no embedding model.** The LLM compiles your documents *once, offline*; queries stay pure BM25 — **~1 ms, $0, no GPU, no vector database.**
+**Fast, local, zero-setup RAG with no embedding model.** The LLM compiles your documents *once, offline*; queries stay pure BM25: **~1 ms, $0, no GPU, no vector database.**
 
 [Performance](#performance) · [Quickstart](#quickstart) · [How to use](#how-to-use) · [Evaluation](#evaluation) · [Cost](#cost) · [How it works](#how-it-works)
 
@@ -21,15 +21,15 @@
 
 ## Performance
 
-Can a retriever with **no embedding model** compete with dense embeddings? On **BEIR scifact** — yes.
+Can a retriever with **no embedding model** compete with dense embeddings? On **BEIR scifact**, yes.
 
 <div align="center">
-<img src="assets/perf-scifact.png" alt="BEIR scifact nDCG@10 — Nrag vs dense embedders" width="860">
+<img src="assets/perf-scifact.png" alt="BEIR scifact nDCG@10, Nrag vs dense embedders" width="860">
 </div>
 
-**The honest headline.** In the cost-fair tier (retrieval only, no per-query model), *Nrag doc2query×2* — **no embeddings, no GPU, no vector DB** — hits **nDCG@10 0.7291 / MRR 0.7042**. That **statistically ties `qwen3-embedding-4b`** (0.7308) and **beats it on MRR**, while clearly beating `text-embedding-3-small` and `bge-m3` — all at **`$0` per query**. Only the 8B embedder is decisively ahead. Full 30-row, cost-tiered table with ablations: [`benchmarks/scifact_results.md`](benchmarks/scifact_results.md).
+**The honest headline.** In the cost-fair tier (retrieval only, no per-query model), *Nrag doc2query×2* (no embeddings, no GPU, no vector DB) hits **nDCG@10 0.7291 / MRR 0.7042**. That **statistically ties `qwen3-embedding-4b`** (0.7308) and **beats it on MRR**, while clearly beating `text-embedding-3-small` and `bge-m3`, all at **`$0` per query**. Only the 8B embedder is decisively ahead. Full 30-row, cost-tiered table with ablations: [`benchmarks/scifact_results.md`](benchmarks/scifact_results.md).
 
-And on **BRIGHT** — the reasoning-intensive benchmark where off-the-shelf dense *collapses* (the #1 MTEB model scores just **18.3**) — embedding-free is exactly where the frontier lives:
+And on **BRIGHT**, the reasoning-intensive benchmark where off-the-shelf dense *collapses* (the #1 MTEB model scores just **18.3**), embedding-free is exactly where the frontier lives:
 
 | nDCG@10 (avg) | BM25 zero-shot | **off-the-shelf dense** | BM25 + GPT-4 CoT | LATTICE (emb-free SOTA) |
 |---|:--:|:--:|:--:|:--:|
@@ -48,13 +48,13 @@ pip install nrag
 ```python
 from nrag import Nrag
 
-rag = Nrag(preset="fast")                      # pure lexical — no LLM, no setup, no models
+rag = Nrag(preset="fast")                      # pure lexical, no LLM, no setup, no models
 rag.add_texts(["Dijkstra finds shortest paths.", "Tomato soup needs basil."])
 print(rag.search("shortest path", k=1)[0].text)
 # -> Dijkstra finds shortest paths.
 ```
 
-That's the whole install: no model download, no Java, no GPU, no vector DB. LLM features are pure add-ons — plug one in when you want compiled enrichment and grounded answers.
+That's the whole install: no model download, no Java, no GPU, no vector DB. LLM features are pure add-ons. Plug one in when you want compiled enrichment and grounded answers.
 
 ---
 
@@ -89,14 +89,14 @@ llm = OpenAICompatLLM(base_url="http://localhost:11434/v1/", model="llama3.2", a
 # ...or wrap any callable (called with just the prompt string by default)
 llm = CallableLLM(lambda prompt: my_model(prompt))
 
-# ...or no LLM at all — pure lexical retrieval still works
+# ...or no LLM at all; pure lexical retrieval still works
 ```
 
 ### 3 · Presets
 
 | Preset | LLM | What runs | For |
 |---|:--:|---|---|
-| `fast` | — | pure lexical (BM25 + trigrams + title) | sub-10 ms retrieval, no LLM |
+| `fast` | no | pure lexical (BM25 + trigrams + title) | sub-10 ms retrieval, no LLM |
 | `quality` *(default)* | ✔ | + contextual indexing (offline) + query expansion + grounded answers | best general RAG |
 | `compiled` | ✔ | + the index-time **compiler** (CSC) + the adaptive **router** | reasoning corpora, `$0` queries |
 
@@ -106,7 +106,7 @@ Any field is overridable: `Nrag(preset="compiled", consensus_k=5, engine="sqlite
 
 > **Retrieval intelligence is a compile-time problem, not a serve-time problem.**
 
-One cached offline pass per chunk emits an enrichment **bundle** — all plain text that lands in the lexical index, never in the cited text:
+One cached offline pass per chunk emits an enrichment **bundle**: all plain text that lands in the lexical index, never in the cited text:
 
 | Pillar | What the compiler adds | Prior art |
 |---|---|---|
@@ -115,7 +115,7 @@ One cached offline pass per chunk emits an enrichment **bundle** — all plain t
 | **propositions** | atomic, decontextualized facts | Dense X, EMNLP 2024 |
 | **reasoning** | multi-hop bridges *not lexically present* | the BRIGHT-winning signal, precomputed |
 
-**CSC — Consensus Sparse Compilation:** the compiler is sampled `k` times; a term's weight is its **agreement across samples** — a training-free learned-sparse weighter that doubles as a self-consistency filter (hallucinated terms appear once and are dropped; entailed terms recur and are promoted). **Literal anchoring** keeps every source-literal term (IDs, error codes) at a floor weight, so exact match is structurally protected.
+**CSC, Consensus Sparse Compilation:** the compiler is sampled `k` times; a term's weight is its **agreement across samples**, a training-free learned-sparse weighter that doubles as a self-consistency filter (hallucinated terms appear once and are dropped; entailed terms recur and are promoted). **Literal anchoring** keeps every source-literal term (IDs, error codes) at a floor weight, so exact match is structurally protected.
 
 ```python
 llm = OpenAICompatLLM(base_url="...", model="...", api_key="...")
@@ -124,10 +124,10 @@ rag = Nrag(llm=llm, preset="compiled", path="./idx")
 rag.compile("docs/")                                # offline, cached by content-hash
 print(rag.query("does this scale to a billion rows?").answer)
 
-rag = Nrag.open("./idx")                             # reopen with NO llm — it still serves
+rag = Nrag.open("./idx")                             # reopen with NO llm, it still serves
 ```
 
-**Adaptive router** — the only query-time LLM use, and it's gated. The first lexical pass is ~1 ms and `$0`; a cheap confidence signal decides whether to spend one LLM call escalating (expansion + re-search). Short queries are treated as precise and never escalated — dodging the expansion *precision trap*.
+**Adaptive router**: the only query-time LLM use, and it's gated. The first lexical pass is ~1 ms and `$0`; a cheap confidence signal decides whether to spend one LLM call escalating (expansion + re-search). Short queries are treated as precise and never escalated, dodging the expansion *precision trap*.
 
 ```python
 rag.search("how can I get my money back?", k=5)
@@ -142,7 +142,7 @@ rag.sync("docs/")                     # re-index only changed files; drop delete
 rag.remove("d1")                      # delete one document
 ```
 
-**Compile once, serve anywhere (air-gapped).** The serving index is a plain lexical artifact — bundle it and ship it to an on-prem / offline box:
+**Compile once, serve anywhere (air-gapped).** The serving index is a plain lexical artifact. Bundle it and ship it to an on-prem / offline box:
 
 ```bash
 nrag export --index ./idx --out ship.nrag.tgz      # portable bundle (drops the LLM cache)
@@ -150,7 +150,7 @@ nrag import ship.nrag.tgz --index ./served         # unpack on the target machin
 nrag query  "how do refunds work?" --index ./served   # $0, ~1 ms, no model, no network
 ```
 
-Or run the **hosted compilation service** — clients POST docs, get back a serving bundle; no embedding model ever crosses the wire:
+Or run the **hosted compilation service**. Clients POST docs and get back a serving bundle; no embedding model ever crosses the wire:
 
 ```bash
 nrag serve --base-url http://localhost:11434/v1/ --model llama3.2   # POST /compile, GET /bundle/<job>
@@ -192,7 +192,7 @@ Nrag ships its own **cost-tiered** evaluation harness (`nrag.eval`). The rule: n
 
 ### The metrics module (pure-Python, no deps)
 
-`nrag.eval.ir_metrics` implements the standard IR metrics with zero dependencies — metric strings `ndcg@k`, `recall@k`, `precision@k`, `hit@k`, `mrr`, `map`.
+`nrag.eval.ir_metrics` implements the standard IR metrics with zero dependencies. Metric strings: `ndcg@k`, `recall@k`, `precision@k`, `hit@k`, `mrr`, `map`.
 
 ```python
 from nrag.eval import evaluate_run
@@ -224,17 +224,17 @@ Install the extra (`pip install "nrag[eval]"`), then build a fresh index via a f
 ```python
 from nrag.eval import run_beir, run_bright, run_bright_all
 
-# BEIR — breadth / parity, scored against the published BM25 anchor
+# BEIR: breadth / parity, scored against the published BM25 anchor
 print(run_beir(lambda: Nrag(preset="fast"), dataset="scifact", split="test"))
 
-# BRIGHT — the reasoning-intensive hero benchmark (needs an LLM for the compiled preset)
+# BRIGHT: the reasoning-intensive hero benchmark (needs an LLM for the compiled preset)
 print(run_bright(lambda: Nrag(llm=llm, preset="compiled"), subset="biology"))
 results = run_bright_all(lambda: Nrag(llm=llm, preset="compiled"))   # all 12 subsets
 ```
 
-**What the harness taught us — findings, not vibes:**
-- **Query-side expansion is a trap on precise retrieval** — LLM query2doc (−0.015 nDCG) and RM3 (−0.14 to −0.19) both crater precision. *Enrich the corpus, never the query* — which is exactly why the router only expands weak/ambiguous queries.
-- **Anticipatory indexing (doc2query) is the cost-fair lever** — the LLM writes, at index time, the claims each doc answers; queries stay pure BM25. Best no-embedding retrieval-only result, free at query time.
+**What the harness taught us (findings, not vibes):**
+- **Query-side expansion is a trap on precise retrieval:** LLM query2doc (−0.015 nDCG) and RM3 (−0.14 to −0.19) both crater precision. *Enrich the corpus, never the query*, which is exactly why the router only expands weak/ambiguous queries.
+- **Anticipatory indexing (doc2query) is the cost-fair lever:** the LLM writes, at index time, the claims each doc answers; queries stay pure BM25. Best no-embedding retrieval-only result, free at query time.
 
 ### Live compiled-retrieval benchmark
 
@@ -256,7 +256,7 @@ python -m pytest                                                        # 87 pas
 
 ## Cost
 
-Evaluation isn't only quality — it's the bill. Nrag pays the smart compute **once, at compile time**; a dense + vector-DB stack pays it on **every query, forever**, plus RAM to hold vectors resident.
+Evaluation isn't only quality; it's the bill. Nrag pays the smart compute **once, at compile time**; a dense + vector-DB stack pays it on **every query, forever**, plus RAM to hold vectors resident.
 
 <div align="center">
 <img src="assets/tco.png" alt="NRAG vs dense+vectorDB cumulative cost over 12 months" width="860">
@@ -270,7 +270,7 @@ from nrag.tco import TCOInputs, compute_tco, format_report
 print(format_report(TCOInputs(), compute_tco(TCOInputs())))
 ```
 
-Every rate is an overridable input (defaults cite the strategy brief) — plug in your own numbers, get your own break-even.
+Every rate is an overridable input (defaults cite the strategy brief). Plug in your own numbers, get your own break-even.
 
 ---
 
@@ -291,7 +291,7 @@ flowchart LR
 ```
 
 - **Structure-aware chunking** with span-exact offsets; `indexed_text` (enriched, searched) is kept separate from `raw_text` (clean, cited).
-- **Two sparse legs**, fused by RRF (zero-tuning) or convex combination — hybrid's complementarity with no dense leg.
+- **Two sparse legs**, fused by RRF (zero-tuning) or convex combination: hybrid's complementarity with no dense leg.
 - **Offline compiler** with a content-hash cache (re-indexing is free) and a cost guard.
 - **Adaptive router** spends an LLM call only when the cheap path is unsure.
 
@@ -323,9 +323,9 @@ pip install "nrag[eval]"        # ranx / pytrec_eval / BEIR / RAGAS / datasets
 
 ## Design guarantees
 
-- **No LLM required** — pure-lexical retrieval always works; LLM features disable by construction when no LLM is supplied.
+- **No LLM required:** pure-lexical retrieval always works; LLM features disable by construction when no LLM is supplied.
 - **All LLM cost is offline** (index-time, cached) or a single gated query-time call (the router).
-- **Portable & explainable** — deterministic scores; the serving index is a plain directory you can archive and ship.
+- **Portable & explainable:** deterministic scores; the serving index is a plain directory you can archive and ship.
 
 ## License
 
