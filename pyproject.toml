@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "nrag"
-version = "0.1.1"
-description = "Fast, local, zero-setup RAG with no embedding model — BM25 + the LLM you plug in."
+version = "0.1.2"
+description = "Embedding-free RAG. An LLM compiles your documents once; every query stays pure BM25."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
